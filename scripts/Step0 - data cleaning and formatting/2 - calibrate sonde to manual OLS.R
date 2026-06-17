@@ -2,6 +2,9 @@
 # The sonde chlorophyll has different relationships to the trusted manual standard
 # in each year. We sought to try to correct the HF sonde chl to the manuals
 
+## in this script, we corrected the data using ordinary least squares regression.
+## in a different script, we corrected the data while accounting for autocorrelation uing ARIMA models
+
 
 library(tidyverse)
 library(ggpmisc)
