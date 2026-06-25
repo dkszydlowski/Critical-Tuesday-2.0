@@ -50,3 +50,6 @@ rsconnect/
 
 # results folder (data files too big)
 results/
+
+# formatted data (files too big and can be reproduced by the code)
+data/formatted data/HF data/*
