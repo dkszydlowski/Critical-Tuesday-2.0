@@ -26,7 +26,7 @@ load("./results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOI
 
 ### try to make a separate dataset that we can run through DDJ, properly stacked
 
-# thin standard level and tstep to
+# thin standard level and tstep to get rid of autocorrelation
 aropt = 3
 idx <- seq(1, length(stdlevel), by = aropt)
 stdlevel = stdlevel[idx]
@@ -93,7 +93,9 @@ DDJ25 <- make_transitions(Xvar025, 2025)
 DDJ_prepped <- rbind(DDJ13, DDJ14, DDJ15, DDJ24, DDJ25) %>% 
   filter(!is.na(dx))
 
-#write.csv(DDJ_prepped, "./scripts/Langevin/HF Langevin/Langevin analysis/Finalized 2026-01-16/stacked data for global DDJ 099 NOISY THINNED.csv", row.names = FALSE) # this is really 098
+write.csv(DDJ_prepped, "./data/formatted data/HF data/ARIMA Tuesday stacked data for global DDJ 098 NOISY THINNED.csv", row.names = FALSE) # this is really 098
+
+### check adf and auto.arima
 
 dx <- DDJ_prepped$dx
 x0 <- DDJ_prepped$x0
@@ -138,52 +140,3 @@ print(lagopt1)
 
 
 
-
-
-#windows()
-plot(Tstep0,Xvar0,type='l',lwd=1,col='blue', main = keepyear)
-
-# find optimal AR lags using auto.arima from forecast library
-arfit = auto.arima(Xvar0) # use defaults
-#ncores=detectCores()
-#arfit = auto.arima(Xvar0,stepwise=F,parallel=T,num.cores=ncores)  # use parallel processing
-lagopt = arimaorder(arfit)
-print('optimal order using autoarima() and arimaorder()',quote=F)
-print(lagopt)
-aropt = unname(lagopt[1])  # save optimal AR order
-# if optimal lag is 0 then data are uncorrelated, use original data
-aropt = ifelse(aropt==0,1,aropt)  
-
-# subsample Xvar0 according to lagopt
-ikeep = seq(1,nx,by=aropt)
-Xvar = Xvar0[ikeep]
-Tstep = Tstep0[ikeep]
-nx=length(Xvar)
-
-# check AR order of thin data
-arfit1 = auto.arima(Xvar)
-lagopt1 = arimaorder(arfit1)
-print('',quote=F)
-print('optimal order of thinned data using autoarima() and arimaorder()',quote=F)
-print(lagopt1)
-
-if(keepyear == 2025){
-  good = !is.na(Xvar)
-  Xvar = Xvar[good]
-  Tstep = Tstep[good]
-}
-
-# test stationarity
-ADF.result = adf.test(Xvar)
-pvalue = ADF.result$p.value
-
-print('ADF for thinned series',quote=F)
-print('p value for HO: series NOT stationary',quote=F)
-print(pvalue)
-
-
-### 2025- no thinning
-### 2024- thin to every 5th
-### 2015 - every third datapoint
-### 2014- every third datapoint
-### 2013- no thinning

@@ -7,10 +7,10 @@
 rm(list = ls())
 graphics.off()
 
-source('./scripts/Langevin/HF Langevin/Langevin analysis/DriftDiffJumpFunction.r')
+source('./scripts/Step 3- Fit DDJ models/0_DriftDiffJumpFunction.r')
 #source('ODLMAR_NoBoot_2018-10-20.R')
 
-source('./scripts/Langevin/HF Langevin/Langevin analysis/EPFunction+EQ.R')
+source('./scripts/Step 3- Fit DDJ models/0_EPFunction+EQ.R')
 
 library(forecast)
 library(cubature)
@@ -24,10 +24,10 @@ options(mc.cores = parallel::detectCores())
 
 
 #load(file="./scripts/Langevin/HF Langevin/DLMresult_HYLB_Tuesday_ALL_Chl.Rdata")
-Fname = c(paste('./scripts/Langevin/HF Langevin/Langevin analysis/Results different data corrections/DDJ_HYLB_Tuesday_DLM_', "GLOBAL", '_Log_Chl_Predicted to Manual Scale POOLED AND GLOBAL NOISY 098 THINNED.Rdata', sep = ""))
+Fname = c(paste('./results/DDJ results Tuesday ARIMA-corrected data.Rdata', sep = ""))
 
 # read in dataframe from diagnostic step
-DDJ_prepped = read.csv("./scripts/Langevin/HF Langevin/Langevin analysis/Finalized 2026-01-16/stacked data for global DDJ 099 NOISY THINNED.csv")
+DDJ_prepped = read.csv("./data/formatted data/HF data/ARIMA Tuesday stacked data for global DDJ 098 NOISY THINNED.csv")
 
 ## new modified
 nx = nrow(DDJ_prepped)
@@ -54,6 +54,8 @@ plot(Tstep0, Xvar, type="l", col="blue")
 #x0= Xvar[1:(nx-1)]
 #x1= Xvar[2:nx]
 #dx = x1-x0
+
+aropt = 3
 
 DT = aropt/(24*12)  # time step of 5-minute data
 xrange = range(x0,na.rm=T)
@@ -166,6 +168,6 @@ all = data.frame(X = xvec.ep1[2:100], efective.potential = epf1)
 
 all.deriv = data.frame(X = xvec.ep1, deriv.ef.pot = dEPdx1)
 
-write.csv(all, paste("./scripts/Langevin/HF Langevin/Langevin analysis/Results different data corrections/Tuesday ", " DLM All Chl DDJ predicted manual bw 09 range delta 98 POOLED AND GLOBAL NOISY THINNED.csv", sep = ""), row.names = FALSE)
-write.csv(all.deriv, paste("./scripts/Langevin/HF Langevin/Langevin analysis/Results different data corrections/Tuesday ", " DLM All Chl DDJ derivative predicted manual bw 09 range delta 98 POOLED and GLOBAL NOISY THINNED.csv", sep = ""), row.names = FALSE)
+write.csv(all, paste("./results/DDJ results Tuesday ARIMA-correced", ".csv", sep = ""), row.names = FALSE)
+write.csv(all.deriv, paste("./results/DDJ results deriv Tuesday ARIMA-correced", ".csv", sep = ""), row.names = FALSE)
 

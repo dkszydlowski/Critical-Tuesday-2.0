@@ -12,7 +12,7 @@ rm(list = ls())
 graphics.off()
 
 #source('DriftDiffJumpFunction.r')
-source('./scripts/Langevin/ODLMAR_NoBoot_2018-10-20.R')
+source('./scripts/Step1 - standardize with DLM/0 - ODLMAR_NoBoot_2018-10-20.R')
 
 #library(svMisc)  # used only if eigenvalues are bootstrapped
 
@@ -36,30 +36,31 @@ source('./scripts/Langevin/ODLMAR_NoBoot_2018-10-20.R')
 # print(T15[1,])
 # title = c('Peter Lake 2019')
 
-Fname = c('./scripts/Langevin/HF Langevin/Langevin analysis/Paul Langevin/DLMresult_HYLB_Paul_ALL_Chl_Predicted to Manual Scale 098 NOISY.Rdata')
+Fname = c('./results/DLMresult_HYLB_Paul_ALL_Chl_Predicted to Manual Scale 098 NOISY ARIMA.Rdata')
 
 title = c('Paul Lake 2013-2015, 2024+2025')
 
 #L.all = read.csv("./data/formatted data/HF data/Predicted Paul HYLB 2013-2015 2024 2025 log-trans.csv") %>% 
- # mutate(Lake = "T")
+ # mutate(Lake = "L")
+
 
 # read in the data and sort by datetime
 # all of the datasets are 5-minute
-L.all = read.csv("./data/formatted data/HF data/Sonde correction/Predicted Paul HYLB on Manual Scale log-trans.csv") %>% 
+L.all = read.csv("./data/formatted data/HF data/Predicted Paul HYLB on Manual Scale log-trans NOISY ARIMA.csv") %>% 
   mutate(Lake = "L") %>% 
   arrange(datetime)
 
 
-
-ggplot(L.all, aes(x = as.factor(Year), y = log10(Chl_HYLB_cal), group = as.factor(Year)))+
-  #facet_wrap(~Year, scales = "free_x")+
-  geom_boxplot()+
-  theme_bw()
-
-ggplot(L.all, aes(x = as.factor(Year), y = (Chl_HYLB_cal), group = as.factor(Year)))+
-  #facet_wrap(~Year, scales = "free_x")+
-  geom_boxplot()+
-  theme_bw()
+# chl_summary <- L.all %>%
+#   filter(!is.na(Chl_HYLB)) %>%      # keep rows with chl data
+#   group_by(Year) %>%
+#   summarize(
+#     n_chl   = n(),
+#     min_DoY = min(DoY, na.rm = TRUE),
+#     max_DoY = max(DoY, na.rm = TRUE)
+#   ) %>%
+#   arrange(Year) %>% 
+#   mutate(DoY = max_DoY - min_DoY)
 
 ### Create a Tscore that combines year and DoY
 mindoy = min(L.all$DoY, na.rm = TRUE)
@@ -68,28 +69,23 @@ maxdoy = max(L.all$DoY, na.rm = TRUE)
 L.all = L.all %>% 
  mutate(Tscore = Year + ( (DoY - mindoy)/(maxdoy-mindoy+1)))
 
-ggplot(L.all, aes(x = Tscore, y = log10(Chl_HYLB_cal), group = Year))+
-  facet_wrap(~Year, scales = "free_x")+
-  geom_line()
 
 # plot Chl estimates
 #windows(width=10,height=10)
 #par(mfrow=c(2,1),mar=c(4, 4.2, 1, 2) + 0.1,cex.axis=1.6,cex.lab=1.6)
-# plot(L.all$Tscore,L.all$Chl_YSI,type='l',col='blue')
-#plot(L.all$Tscore,L.all$Chl_HYLB,type='l',col='blue')
+plot(L.all$Tscore,L.all$Chl_HYLB_cal,type='l',col='blue')
 
 # X.dlm will be the sequence over years z-scored using a common mean and s.d.
 
 useChl0 = subset(L.all,select=c(DoY, lsonde_cal, Chl_HYLB_cal, Tscore)) 
-# here I am using predicted chl and storing it in useChl0, can select your own variable
-
+# using lsonde_cal, which is the log-transformed sonde data calibrated to manual
 
 print(c('dim of selected data = ',dim(useChl0)),quote=F)
 useChl = na.omit(useChl0)
 print(c('dim after na.omit = ',dim(useChl)),quote=F)
 #
 Tstep = useChl$Tscore
-  X0 = useChl$lsonde_cal # Needs to be lsonde_cal to use corrected data
+X0 = useChl$lsonde_cal
 X.dlm = (X0 - mean(X0))/sd(X0)  # Z-score to all years
 #X.dlm = X0
 print(c('range X.dlm = ',range(X.dlm,na.rm=T)),quote=F)
@@ -152,6 +148,24 @@ grid()
 plot(Tstep[2:Nstep],Z.eq,type='l',col='purple',
      ylab='Z score',xlab='DoY')
 grid()
+
+
+# plot(Tstep, X.dlm,
+#      type = 'l',
+#      col = 'forestgreen',
+#      xlab = 'DoY index',
+#      ylab = 'X.dlm',
+#      main = 'Chl for DLM')
+# 
+# # Add model estimates as points
+# points(Tstep[2:Nstep], Yyhat[,3],
+#        pch = 16,
+#        col = 'red')
+
+grid()
+
+### save these things for plotting
+save(Tstep, X.dlm, Nstep, Yyhat, file = './results/DLMresult_HYLB_Paul_ALL_Chl_Predicted to Manual Scale 098 NOISY PLOTTING ARIMA.Rdata')
 
 # Calculate level estimates
 level = B.ests[1,]

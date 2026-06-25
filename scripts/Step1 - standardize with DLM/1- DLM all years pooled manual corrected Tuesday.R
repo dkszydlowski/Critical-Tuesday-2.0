@@ -36,23 +36,21 @@ source('./scripts/Step1 - standardize with DLM/0 - ODLMAR_NoBoot_2018-10-20.R')
 # print(T15[1,])
 # title = c('Peter Lake 2019')
 
-Fname = c('./results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOISY.Rdata')
+Fname = c('./results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOISY ARIMA.Rdata')
 
 title = c('Tuesday Lake 2013-2015, 2024+2025')
 
 #T.all = read.csv("./data/formatted data/HF data/Predicted Tuesday HYLB 2013-2015 2024 2025 log-trans.csv") %>% 
  # mutate(Lake = "T")
 
+
 # read in the data and sort by datetime
 # all of the datasets are 5-minute
-T.all = read.csv("./data/formatted data/HF data/Predicted Tuesday HYLB on Manual Scale log-trans NOISY.csv") %>% 
+T.all = read.csv("./data/formatted data/HF data/Predicted Tuesday HYLB on Manual Scale log-trans NOISY ARIMA.csv") %>% 
   mutate(Lake = "T") %>% 
   arrange(datetime)
 
-# ggplot(T.all, aes(x = ymd_hms(datetime), y = 10^lsonde_cal))+
-#   geom_line()+
-#   facet_wrap(~Year, scales = "free_x")
-# 
+
 # chl_summary <- T.all %>%
 #   filter(!is.na(Chl_HYLB)) %>%      # keep rows with chl data
 #   group_by(Year) %>%
@@ -71,11 +69,11 @@ maxdoy = max(T.all$DoY, na.rm = TRUE)
 T.all = T.all %>% 
  mutate(Tscore = Year + ( (DoY - mindoy)/(maxdoy-mindoy+1)))
 
+
 # plot Chl estimates
 #windows(width=10,height=10)
 #par(mfrow=c(2,1),mar=c(4, 4.2, 1, 2) + 0.1,cex.axis=1.6,cex.lab=1.6)
-plot(T.all$Tscore,T.all$Chl_YSI,type='l',col='blue')
-plot(T.all$Tscore,T.all$Chl_HYLB,type='l',col='blue')
+plot(T.all$Tscore,T.all$Chl_HYLB_cal,type='l',col='blue')
 
 # X.dlm will be the sequence over years z-scored using a common mean and s.d.
 
@@ -167,7 +165,7 @@ grid()
 grid()
 
 ### save these things for plotting
-save(Tstep, X.dlm, Nstep, Yyhat, file = './results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOISY PLOTTING.Rdata')
+save(Tstep, X.dlm, Nstep, Yyhat, file = './results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOISY PLOTTING ARIMA.Rdata')
 
 # Calculate level estimates
 level = B.ests[1,]

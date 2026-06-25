@@ -82,6 +82,12 @@ chl.t24 = read.csv("./data/unformatted data/2024_Paul_Chl_MARSS_2026_02_12 DKS.c
 ggplot(chl.t25, aes(x = DOY, y = 10^(hylb_m -1)))+
   geom_line()
 
+ggplot(chl.t24, aes(x = DOY, y = 10^(hylb_m -1)))+
+  geom_line()
+
+ggplot(chl.t25, aes(x = DOY, y = (hylb_m)))+
+  geom_line()
+
 chl.t24 = chl.t24 %>% rename(Chl_HYLB = hylb_m) %>% 
   mutate(Chl_HYLB = (10^Chl_HYLB)-1) %>% 
   mutate(Chl_logged_HYLB = log10(Chl_HYLB + 1)) %>% 
