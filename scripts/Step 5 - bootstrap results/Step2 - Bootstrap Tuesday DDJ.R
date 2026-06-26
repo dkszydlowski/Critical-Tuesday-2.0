@@ -4,9 +4,9 @@
 rm(list = ls())
 graphics.off()
 
-source('./scripts/Langevin/HF Langevin/Langevin analysis/DriftDiffJumpFunction.r')
+source('./scripts/Step 3- Fit DDJ models/0_DriftDiffJumpFunction.r')
 
-source('./scripts/Langevin/HF Langevin/Langevin analysis/EPFunction+EQ.R')
+source('./scripts/Step 3- Fit DDJ models/0_EPFunction+EQ.R')
 
 library(forecast)
 library(tidyverse)
@@ -23,7 +23,7 @@ Fname = c('./results/bootstrapped results/DDJ_boot_Tuesday 1000.Rdata')
 bdat0 = Bootsdlevel
 
 # Thin data by aropt = Markov thinning factor
-aropt = 2
+aropt = 3
 nx0 = length(bdat0[,1])
 # subsample bdat0 according to aropt
 # ikeep = seq(1,nx0,by=aropt)
