@@ -13,11 +13,14 @@ library(ggpmisc)
 library(parallel)
 options(mc.cores = parallel::detectCores())
 
+# output file name
+Fname = './results/bootstrapped results/Passage_times_boot_Tuesday 1000.Rdata'
+
 # Load data
 # bdat0 is the bootstrapped DLM output, bdat is Markov-thinned bdat0 by aropt
 # EPxeqmat is the bootstrapped equilibria of the EPF
-#save(bdat0,bdat,aropt,Nboot,amat,D1mat,D2mat,sigmat,xeqmat,EPxeqmat,file=Fname)
-load(file='./scripts/Bootstrapping/outputs/DDJ_boot_Tuesday v3.Rdata')
+
+load(file='./results/bootstrapped results/DDJ_boot_Tuesday 1000.Rdata')
 # choose time step ***************************************
 #DT = aropt/(24*12)  # time step of 1-minute data in days
 DT = 5*aropt    # time step of 5 minute data in minutes. If aropt = 2, DT = 10 minutes
@@ -137,6 +140,7 @@ for(i in 1:Nboot) {
   
   cur.pass.boot = data.frame(year = j, Nboot = i, mean.left = mean(ET_left, na.rm = TRUE), mean.right = mean(ET_right, na.rm = TRUE))
   
+  # save the results to a dataframe
   if(i == 1 & j == 2013){
     pass.boot = cur.pass.boot
   }
@@ -155,6 +159,10 @@ for(i in 1:Nboot) {
 ggplot(pass.boot, aes(x =as.factor(year), y = mean.right/60))+
   geom_boxplot()+
   scale_y_log10()
+
+
+### save the dataframe
+save(pass.boot, file = Fname)
 
 # read in mean kNC
 

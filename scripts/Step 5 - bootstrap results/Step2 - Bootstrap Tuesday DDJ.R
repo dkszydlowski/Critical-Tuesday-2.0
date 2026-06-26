@@ -15,7 +15,7 @@ options(mc.cores = parallel::detectCores())
 
 # Load result of DLM bootstrap
 #save(Nboot,Bootlevel,Bootsdlevel,file=Fname)
-load(file="'./results/bootstrapped results/DLM_boot_Tuesday 1000.Rdata'")
+load(file="./results/bootstrapped results/DLM_boot_Tuesday 1000.Rdata")
 # Name of output file
 Fname = c('./results/bootstrapped results/DDJ_boot_Tuesday 1000.Rdata')
 
@@ -57,6 +57,7 @@ make_transitions = function(Xvar, Tstep, year){
   )
 }
 
+# check for any infinite values that might cause an error
 cols_with_inf <- apply(bdat0, 2, function(x) any(is.infinite(x)))
 
 which(cols_with_inf)
@@ -217,6 +218,8 @@ grid()
 # D1 is drift
 
 
+
+### plot the bootstrapped DDJ fits
 plot.DDJ = data.frame(avec =avec, D1 = D1, D2 = D2, sig.D2 = sig.D2)
 
 drift_diff = plot.DDJ %>% 

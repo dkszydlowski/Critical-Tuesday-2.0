@@ -390,10 +390,14 @@ correction.data = all.predicted %>%
   select(year, doy, correction, Mchl)
 
 
+
+
 # read in the sonde data
 #chl.sonde = read.csv("./data/formatted data/HF data/Sonde correction/Predicted Tuesday HYLB on Manual Scale log-trans NOISY.csv")
 
 all.hylb = read.csv("./data/formatted data/HF data/Tuesday HYLB 2013-2015 2024 2025 log-trans NEW MARSS NOISE 2026-02-16.csv")
+
+all.hylb.15 = all.hylb %>% filter(Year == 2015)
 
 # need year to be a factor
 correction.data = correction.data %>% 
