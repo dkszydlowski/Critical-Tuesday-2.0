@@ -520,10 +520,7 @@ hf_out <- hf15 %>%
     DoY = hf15$DoY
   )
 
-pred.df <- data.frame(
-  DoY = hf15$DoY,
-  pred_manual = 10^(as.numeric(pred$pred) + mean(dat15$Mchl))
-)
+
 
 ggplot(hf_out, aes(x = DoY, y = pred_manual))+
   geom_line()+
@@ -547,13 +544,8 @@ newxreg <- matrix(hf.X, ncol = 1)
 
 pred <- predict(aa15, newxreg = newxreg)
 
-pred.df <- data.frame(
-  DoY = hf15$DoY,
-  pred_manual = 10^(pred$pred + mean(dat15$Mchl))
-)
 
 
-pred = data.frame(pred)
 
 # need year to be a factor
 correction.data = correction.data %>% 
@@ -603,7 +595,7 @@ final.T = all.hylb %>%
     datetime = make_datetime(as.numeric(as.character(year)), 1, 1, tz = "UTC") +
       ddays(DoY - 1)) %>% 
   rename(Year = year, Lake = lake, lsonde_cal = corrected.sonde) %>% 
-  mutate(Chl_HYLB_cal = 10^lsonde_cal -2) %>%  # create original data column
+  mutate(Chl_HYLB_cal = 10^lsonde_cal) %>%  # create original data column
   select(Year, Lake, DoY, Chl_HYLB, Chl_logged_HYLB, datetime, lsonde_cal, Chl_HYLB_cal)
 
 # Chl_HYLB is original HYLB data
@@ -1060,7 +1052,7 @@ final.L = all.hylb %>%
     datetime = make_datetime(as.numeric(as.character(year)), 1, 1, tz = "UTC") +
       ddays(DoY - 1)) %>% 
   rename(Year = year, Lake = lake, lsonde_cal = corrected.sonde) %>% 
-  mutate(Chl_HYLB_cal = 10^lsonde_cal -2) %>%  # create original data column
+  mutate(Chl_HYLB_cal = 10^lsonde_cal) %>%  # create original data column
   select(Year, Lake, DoY, Chl_HYLB, Chl_logged_HYLB, datetime, lsonde_cal, Chl_HYLB_cal)
 
 # Chl_HYLB is original HYLB data

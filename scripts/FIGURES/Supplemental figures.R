@@ -7,7 +7,7 @@ library(ggpubr)
 
 
 #### actual DDJ results ####
-load("./scripts/Langevin/HF Langevin/Langevin analysis/Results different data corrections/DDJ_HYLB_Tuesday_DLM_GLOBAL_Log_Chl_Predicted to Manual Scale POOLED AND GLOBAL NOISY 098 THINNED.Rdata")
+load('./results/DDJ results Tuesday ARIMA-corrected data.Rdata')
 
 ddj.result = data.frame(D1, D2, avec)
 
@@ -61,7 +61,7 @@ ggarrange(DDJ.plot, EP.plot, nrow = 2, ncol = 1, align = "v")
 
 #-------------------------------------------------------------------------------------------------------------------------------------------#
 #### PLOT DLM RESULTS #####
-load('./scripts/Langevin/HF Langevin/Langevin analysis/Finalized 2026-01-16/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOISY PLOTTING.Rdata')
+load('./results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOISY ARIMA.Rdata')
 
 
 # plot(Tstep, X.dlm,
@@ -220,7 +220,7 @@ ggplot(all.dlm %>% filter(year == 2025), aes(x = Tstep)) +
 
 
 #### plotting the bootstrapped results #####
-load("./scripts/Bootstrapping/outputs/DDJ_boot_Tuesday v3.Rdata")
+load('./results/bootstrapped results/DDJ_boot_Tuesday 1000.Rdata')
 
 
 # Average across bootstrap replicates
