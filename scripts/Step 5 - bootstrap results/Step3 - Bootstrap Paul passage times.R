@@ -14,13 +14,13 @@ library(parallel)
 options(mc.cores = parallel::detectCores())
 
 # output file name
-Fname = './results/bootstrapped results/Passage_times_boot_Tuesday 1000.Rdata'
+Fname = './results/bootstrapped results/Passage_times_boot_Paul 1000.Rdata'
 
 # Load data
 # bdat0 is the bootstrapped DLM output, bdat is Markov-thinned bdat0 by aropt
 # EPxeqmat is the bootstrapped equilibria of the EPF
 
-load(file='./results/bootstrapped results/DDJ_boot_Tuesday 1000.Rdata')
+load(file='./results/bootstrapped results/DDJ_boot_Paul 1000.Rdata')
 # choose time step ***************************************
 #DT = aropt/(24*12)  # time step of 1-minute data in days
 DT = 5*aropt    # time step of 5 minute data in minutes. If aropt = 2, DT = 10 minutes
@@ -173,7 +173,7 @@ data %>%
 
 data.mean = data %>% 
   mutate(kNC = kPAR - 0.0177*Manual_Chl) %>% 
-  filter(Lake == "T" & kNC > 0) %>% 
+  filter(Lake == "L" & kNC > 0) %>% 
   group_by(Year) %>% 
   summarize(mean.kNC = mean(kNC, na.rm = TRUE),
             median.kNC = median(kNC, na.rm = TRUE),

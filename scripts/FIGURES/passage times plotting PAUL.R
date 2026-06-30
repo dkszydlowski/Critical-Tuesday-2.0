@@ -522,7 +522,7 @@ pandpt =  ggplot(pt.mean, aes(x = max.P, y = (mean.days), color = basin)) +
   ) 
 
 
-#png("./figures/ASLO 2026/total nutrients and pt.png", res = 300, width = 8, height = 4, units = "in")
+png("./figures/ASLO 2026/total nutrients and pt.png", res = 300, width = 8, height = 4, units = "in")
 #pandpt
 #dev.off()
 
@@ -599,7 +599,7 @@ global.ep.plot <- ggplot(
   ) +
   annotate(
     "text",
-    x = -0.06,
+    x = (-7 + eq)/2,
     y = ymax * 1.07,
     label = "low-pigment",
     color = "white",

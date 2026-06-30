@@ -258,6 +258,8 @@ ggplot(predicted15, aes(x = doy, y = 10^as.numeric(predicted)))+
 
 
 
+
+
 ## 2024 ##
 # Try auto.arima on 2024 
 print('auto.arima for 2024',quote=F)
@@ -358,6 +360,107 @@ qqnorm(residuals(aa25), main = "2025 QQ plot")
 qqline(residuals(aa25))
 
 
+
+
+
+
+#========================================================================================================================================#
+##### PREDICT MANUAL CHL FROM HIGH-FREQUENCY SONDE DATA #####
+# After fitting aa13, aa14, aa15, aa24, aa25 above, use each model to 
+# predict manual chl across the full HF time series.
+#========================================================================================================================================#
+
+predict_manual_from_hf <- function(model, calibration_data, hf_data, yr) {
+  
+  # Pull the mean Hchl from the calibration data (same centering used during fitting)
+  hchl_mean <- mean(calibration_data$Hchl)
+  mchl_mean <- mean(calibration_data$Mchl)
+  
+  # Subset HF data to this year and compute the same log transform
+  hf_yr <- hf_data %>%
+    filter(Year == yr) %>%
+    mutate(Hchl = log10(Chl_HYLB + 2)) %>%   # same transform as training
+    mutate(Hchl_c = Hchl - hchl_mean)          # center using calibration mean
+  
+  # forecast() needs xreg as a matrix
+  xreg_new <- matrix(hf_yr$Hchl_c, ncol = 1)
+  
+  # Predict: h = number of new HF time steps
+  preds <- forecast(model, xreg = xreg_new, h = nrow(hf_yr))
+  
+  # Back-transform: add calibration mean back, then 10^x
+  hf_yr %>%
+    mutate(
+      predicted_lman  = as.numeric(preds$mean) + mchl_mean,   # log10 scale
+      predicted_manual = 10^predicted_lman,                    # original scale
+      predicted_lower  = 10^(as.numeric(preds$lower[, 2]) + mchl_mean),  # 95% CI lower
+      predicted_upper  = 10^(as.numeric(preds$upper[, 2]) + mchl_mean)   # 95% CI upper
+    ) %>%
+    select(Year, DoY, Chl_HYLB, predicted_manual, predicted_lower, predicted_upper)
+}
+
+# Apply to each year using its fitted model and calibration subset
+hf_predicted <- bind_rows(
+  predict_manual_from_hf(aa13, subset(datall, year == 2013), all.hylb, 2013),
+  predict_manual_from_hf(aa14, subset(datall, year == 2014), all.hylb, 2014),
+  predict_manual_from_hf(aa15, subset(datall, year == 2015), all.hylb, 2015),
+  predict_manual_from_hf(aa24, subset(datall, year == 2024), all.hylb, 2024),
+  predict_manual_from_hf(aa25, subset(datall, year == 2025), all.hylb, 2025)
+)
+
+# Quick sanity check plot
+ggplot(hf_predicted, aes(x = DoY)) +
+  # geom_ribbon(aes(ymin = predicted_lower, ymax = predicted_upper), alpha = 0.2, fill = "steelblue") +
+  geom_line(aes(y = predicted_manual), color = "steelblue") +
+  facet_wrap(~Year, scales = "free_y") +
+  theme_classic() +
+  labs(x = "Day of Year", 
+       y = "Predicted Manual Chlorophyll (μg/L)",
+       title = "Tuesday Lake: HF Sonde → Predicted Manual Chl (ARIMA)")
+
+# Bring in the manual grab data (same source as before, already filtered)
+manuals_for_plot <- man.pigs.morning %>%
+  filter(!is.na(Manual_Chl)) %>%
+  rename(Year = Year, DoY = roundDoY) %>%
+  select(Year, DoY, Manual_Chl)
+
+# Join to HF predictions
+hf_predicted_with_manual <- hf_predicted %>%
+  left_join(manuals_for_plot, by = c("Year", "DoY"))
+
+# Plot predicted HF line + manual grab points
+ggplot(hf_predicted_with_manual %>% filter(Year == 2015), aes(x = DoY)) +
+  # geom_ribbon(aes(ymin = predicted_lower, ymax = predicted_upper), 
+  #             alpha = 0.2, fill = "steelblue") +
+  geom_line(aes(y = predicted_manual), color = "steelblue", linewidth = 0.7) +
+  geom_point(aes(y = Manual_Chl), color = "firebrick", size = 1.5, na.rm = TRUE) +
+  facet_wrap(~Year, scales = "free_y") +
+  theme_classic() +
+  labs(x = "Day of Year",
+       y = "Chlorophyll (μg/L)",
+       title = "Tuesday Lake: ARIMA-Predicted Manual Chl vs. Observed Manual Grabs",
+       caption = "Blue line = HF predicted, red points = manual grabs") +
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #### combine all and plot with each other #####
 
 predicted13 = predicted13 %>% mutate(predicted = as.numeric(predicted))
@@ -397,7 +500,60 @@ correction.data = all.predicted %>%
 
 all.hylb = read.csv("./data/formatted data/HF data/Tuesday HYLB 2013-2015 2024 2025 log-trans NEW MARSS NOISE 2026-02-16.csv")
 
-all.hylb.15 = all.hylb %>% filter(Year == 2015)
+hf15 = all.hylb %>% filter(Year == 2015)
+
+hf15 <- all.hylb %>%
+  filter(Year == 2015 & DoY > 150)
+
+hf.X <- log10(hf15$Chl_HYLB + 2)
+hf.X = hf.X - mean(hf.X)
+
+newxreg <- matrix(hf.X, ncol = 1)
+
+hf.pred <- predict(aa15, newxreg = newxreg)
+
+
+hf_out <- hf15 %>%
+  mutate(
+    pred_manual_log = hf.pred$pred + mean(dat15$Mchl),
+    pred_manual = 10^pred_manual_log,
+    DoY = hf15$DoY
+  )
+
+pred.df <- data.frame(
+  DoY = hf15$DoY,
+  pred_manual = 10^(as.numeric(pred$pred) + mean(dat15$Mchl))
+)
+
+ggplot(hf_out, aes(x = DoY, y = pred_manual))+
+  geom_line()+
+  geom_point(
+    data = datall %>% filter(year == 2015),
+    aes(x = doy, y = Manual_Chl),
+    color = "red",
+    size = 2
+  )
+
+newxreg <- matrix(hf.X, ncol = ncol(aa15$xreg))
+
+pred <- predict(aa15, newxreg = newxreg)
+
+
+
+
+hf.X <- log10(hf15$Chl_HYLB + 2) - mean(dat15$Hchl)
+
+newxreg <- matrix(hf.X, ncol = 1)
+
+pred <- predict(aa15, newxreg = newxreg)
+
+pred.df <- data.frame(
+  DoY = hf15$DoY,
+  pred_manual = 10^(pred$pred + mean(dat15$Mchl))
+)
+
+
+pred = data.frame(pred)
 
 # need year to be a factor
 correction.data = correction.data %>% 

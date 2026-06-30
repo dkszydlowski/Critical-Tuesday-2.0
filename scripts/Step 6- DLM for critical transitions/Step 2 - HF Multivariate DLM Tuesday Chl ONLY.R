@@ -15,6 +15,11 @@ years = c(2013, 2014, 2015, 2024, 2025)
 
 deltas = c(0.90, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99)
 
+
+T.all = read.csv("./data/formatted data/HF data/Predicted Tuesday HYLB on Manual Scale log-trans NOISY ARIMA.csv") %>% 
+  mutate(Lake = "T") %>% 
+  arrange(datetime)
+
 for(k in 1:length(years)){
   year = years[k]
   
@@ -28,21 +33,23 @@ for(k in 1:length(years)){
     # Cleaning up the data set to run through the DLM
     
     if(year != "All years"){
-      sonde = read.csv("./scripts/Multivariate DLM/sonde HF stacked 2026-01-27.csv") %>% 
+      sonde = T.all %>% 
         mutate(datetime = ymd_hms(datetime)) %>% 
         filter(Year == year) %>% 
         rename(doy_frac = DoY) %>% #rename to capture what's actually in the column
         mutate(doy = trunc(doy_frac)) %>% #create a DOY variable
         mutate(
-          chl = Chl_HYLB) %>% 
+          chl = Chl_HYLB_cal) %>% 
         filter(format(datetime, "%H") %in% c("06", "07", "08", "09")) %>% 
         select(doy_frac, doy, chl)
       
       
       
 daily_mean = sonde %>% 
-  rename(chl_mean = chl) %>% 
-  filter(!is.na(chl_mean))
+  group_by(doy) %>%
+  summarise(
+    chl_mean = mean(chl, na.rm = TRUE))%>%
+  ungroup()
       
     }
     
@@ -167,7 +174,7 @@ daily_mean = sonde %>%
     # optional transformations
     ######################
     # log transform (optional)
-    # Xmat.1 <- log(1+Xmat.1)  
+    Xmat.1 <- log(2+Xmat.1)  
     ######################
     # center (optional)
     unit = rep(1,nX) #nX = number of observations
@@ -280,7 +287,7 @@ daily_mean = sonde %>%
     
     
     eigenvalues = data.frame(eigvals) %>%
-      mutate(doy = daily_mean$doy_frac[1:length(daily_mean$doy_frac)-1]) %>% 
+      mutate(doy = daily_mean$doy[1:length(daily_mean$doy)-1]) %>% 
       mutate(Year = year) %>% 
       mutate(delta = delta.input) %>% 
       mutate(model.cor = cor(yhat,Xmat1[,idlm]))
@@ -321,14 +328,19 @@ daily_mean = sonde %>%
 }
 
 
-ggplot(all.results %>% filter(delta == 0.98), aes(x = as.numeric(doy), y = eigvals, color = as.factor(Year)))+
+ggplot(all.results %>% filter(delta == 0.90), aes(x = as.numeric(doy), y = eigvals, color = as.factor(Year)))+
   geom_line(size = 1)+
   #geom_point()+
   geom_hline(yintercept = 1)+
   facet_wrap(~Year, nrow = 5, ncol = 1)+
   theme_bw()
 
-
+ggplot(all.results, aes(x = delta, y = model.cor, color = as.factor(Year)))+
+  geom_line(size = 1)+
+  #geom_point()+
+  geom_hline(yintercept = 1)+
+  facet_wrap(~Year, nrow = 5, ncol = 1)+
+  theme_bw()
 
 #write.csv(all.results, "./scripts/Multivariate DLM/eigenvalues 2026-05-21 CHL ONLY.csv", row.names = FALSE)
 
