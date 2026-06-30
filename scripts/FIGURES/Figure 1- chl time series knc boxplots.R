@@ -3,6 +3,8 @@
 
 library(tidyverse)
 library(ggpubr)
+library(ggh4x)
+
 
 
 ###### ===================================================================================================================############
@@ -196,50 +198,48 @@ morning.pigs.both = morning.pigs.both %>%
   mutate(Lake = factor(Lake, levels = c("T", "L")),
          fill_color = ifelse(Lake == "L", green_palette[1], as.character(Year)))
 
+
+
 both.plotted = ggplot(morning.pigs.both,
                       aes(x = roundDoY, 
                           y = Year,     
                           height = Chl_HYLB, 
                           group = Year, 
                           fill = fill_color)) +
-  facet_wrap(~Lake, 
-             labeller = as_labeller(c("L" = "Paul Lake (reference)", "T" = "Tuesday Lake (experimental)"))) +
+  facet_wrap2(~Lake, 
+              strip = strip_themed(
+                background_x = list(
+                  element_rect(fill = brown_palette[2]),  # Tuesday (T) - matches kNC brown
+                  element_rect(fill = "#44729C")   # Paul (L) - matches kNC blue
+                  
+                ),
+                text_x = list(
+                  element_text(color = "white", size = 12, face = "bold"),
+                  element_text(color = "white", size = 12, face = "bold")
+                )
+              ),
+              labeller = as_labeller(c("L" = "Paul Lake (reference)", "T" = "Tuesday Lake (experimental)"))) +
   geom_ridgeline(
     scale = 0.09,
     alpha = 1,
     color = "black",
     size = 0.3
   ) +
-  scale_fill_manual(values = c(green_palette[1], green_palette)) +  # Paul = first green, T = all greens
+  scale_fill_manual(values = c(green_palette[1], green_palette)) +
   theme_bw() +
   theme(
     legend.position = "none",
     panel.grid = element_blank(),
-    strip.background = element_blank(),     # remove the banner
-    strip.text = element_text(size = 16)   # adjust facet label text
+    strip.text = element_text(size = 16)
   ) +
-  # geom_text(
-  #   data = peak_chl,
-  #   aes(
-  #     x = roundDoY,
-  #     y = y_peak,
-  #     label = paste(round(Chl_HYLB, 0), "μg/L", sep = " ")
-  #   ),
-  #   inherit.aes = FALSE,
-  #   nudge_y = 0,
-  #   size = 5
-  # ) +
-labs(x = "Date", y = "chlorophyll (μg/L)") +
+  labs(x = "Date", y = "chlorophyll (μg/L)") +
   theme(
     axis.title = element_text(size = 12),
     axis.text = element_text(size = 10),
-    # axis.title.x = element_blank(),
-    strip.text = element_text(size = 14, hjust = 0.5),
-    plot.margin = margin(l = 0, r = 1, t = 0, b = 1, unit = "pt"))+
-  # xlim(131, 244) +
-  scale_y_discrete(limits = as.character(c(2013:2015, 2024, 2025)))+
+    plot.margin = margin(l = 0, r = 1, t = 0, b = 1, unit = "pt")) +
+  scale_y_discrete(limits = as.character(c(2013:2015, 2024, 2025))) +
   scale_x_continuous(
-    breaks = c(152, 182, 213, 244),      # start of Jun, Jul, Aug, Sep
+    breaks = c(152, 182, 213, 244),
     labels = c("Jun", "Jul", "Aug", "Sep"))
 
 
@@ -303,7 +303,6 @@ ggarrange(both.plotted, knc.plot, nrow = 2, ncol = 1, heights = c(1, 1.3), align
 png("./figures/FIGURE 1 - chl time series and knc.png", height = 120, width = 173, units = "mm", res = 600)
 ggarrange(both.plotted, knc.plot, nrow = 2, ncol = 1, align = "v")
 dev.off()
-
 
 
 #### plot of all of the data stacked #####

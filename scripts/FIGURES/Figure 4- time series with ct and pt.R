@@ -84,13 +84,14 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
 # locatino of critical transitions with manual results
 # "./scripts/Multivariate DLM/Tuesday MANUAL eigenvalues 2026-02-27 NO BGA log-transformed chl only.csv"
 
-ct = read.csv("./scripts/Multivariate DLM/PAUL eigenvalues 2026-05-21 CHL ONLY.csv") %>% 
-  filter(delta == 0.90) %>% 
-  arrange(Year, doy) %>% 
-  group_by(Year) %>% 
-  filter(eigvals >= 1 & lag(eigvals) < 1) %>% 
-  ungroup() %>% 
-  rename(year = Year)
+
+ct = read.csv("./results/Paul CT DLM.csv") %>%
+  rename(year = Year) %>%
+  filter(delta == 0.90) %>%
+  group_by(year) %>%
+  arrange(doy, .by_group = TRUE) %>%
+  filter(eigvals >= 1 & lag(eigvals, default = 0) < 1) %>%
+  ungroup()
 
 ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
   geom_line(size = 1, alpha = 0.75) +
@@ -204,9 +205,14 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
 # locatino of critical transitions with manual results
 # "./scripts/Multivariate DLM/Tuesday MANUAL eigenvalues 2026-02-27 NO BGA log-transformed chl only.csv"
 
-ct = read.csv("./scripts/Multivariate DLM/eigenvalues 2026-05-21 CHL ONLY.csv") %>% 
-  filter(delta == 0.90 & eigvals >= 1) %>% 
-  rename(year = Year)
+
+ct = read.csv("./results/Tuesday CT DLM.csv") %>%
+  rename(year = Year) %>%
+  filter(delta == 0.90) %>%
+  group_by(year) %>%
+  arrange(doy, .by_group = TRUE) %>%
+  filter(eigvals >= 1 & lag(eigvals, default = 0) < 1) %>%
+  ungroup()
 
 ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
   geom_line(size = 1, alpha = 0.75) +
@@ -315,7 +321,7 @@ ggplot(
 
 
 
-png("./figures/draft 2026-06-01/Figure 3.png", res = 600, height = 100, width = 173, units = "mm") 
+png("./figures/Figure 3 pt and ct.png", res = 600, height = 100, width = 173, units = "mm") 
 
 
 

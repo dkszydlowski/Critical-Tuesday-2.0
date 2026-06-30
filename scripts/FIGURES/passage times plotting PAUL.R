@@ -668,12 +668,12 @@ ggplot(pt.mean, aes(x = mean.kPAR, y = log10(mean.minutes), color = basin))+
 
 
 ####===============================================================================================================================================================================================================#
-#### plot with horizontal bars when the ecosystem was in differents ####
+#### plot with horizontal bars when the ecosystem was in different states ####
 
 # Load DLM result
 #save(useBGA,Tstep,X.dlm,level,levelsd,stdlevel,file=Fname)  
 # load(file='DLMresult_YSI_Peter19.Rdata')
-load('./scripts/Langevin/HF Langevin/Langevin analysis/Paul Langevin/DLMresult_HYLB_Paul_ALL_Chl_Predicted to Manual Scale 098 NOISY.Rdata')
+load('./results/DLMresult_HYLB_Paul_ALL_Chl_Predicted to Manual Scale 098 NOISY ARIMA.Rdata')
 
 # thin the data to match DDJ
 aropt=3
@@ -689,7 +689,7 @@ dat0 = as.data.frame(cbind(Tstep,stdlevel)) %>%
 
 
 # convert Tstep back to a time
-L.all = read.csv("./data/formatted data/HF data/Sonde correction/Predicted Paul HYLB on Manual Scale log-trans.csv") %>% 
+L.all = read.csv("./data/formatted data/HF data/Predicted Paul HYLB on Manual Scale log-trans NOISY ARIMA.csv") %>% 
   mutate(Lake = "L") %>% 
   arrange(datetime)
 

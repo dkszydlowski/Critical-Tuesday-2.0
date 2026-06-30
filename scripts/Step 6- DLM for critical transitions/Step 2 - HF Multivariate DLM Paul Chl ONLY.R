@@ -1,4 +1,4 @@
-#Tuesday Lake DLM for identifing critical transitions
+#Paul Lake DLM for identifing critical transitions
 
 #### Fit to the HF data #####
 # hope is that this matches more closely to the passage times #
@@ -15,11 +15,11 @@ years = c(2013, 2014, 2015, 2024, 2025)
 
 deltas = c(0.90, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99)
 
-Fname = "./results/Tuesday CT DLM.csv"
+Fname = "./results/Paul CT DLM.csv"
 
 
-T.all = read.csv("./data/formatted data/HF data/Predicted Tuesday HYLB on Manual Scale log-trans NOISY ARIMA.csv") %>% 
-  mutate(Lake = "T") %>% 
+L.all = read.csv("./data/formatted data/HF data/Predicted Paul HYLB on Manual Scale log-trans NOISY ARIMA.csv") %>% 
+  mutate(Lake = "L") %>% 
   arrange(datetime)
 
 for(k in 1:length(years)){
@@ -35,7 +35,7 @@ for(k in 1:length(years)){
     # Cleaning up the data set to run through the DLM
     
     if(year != "All years"){
-      sonde = T.all %>% 
+      sonde = L.all %>% 
         mutate(datetime = ymd_hms(datetime)) %>% 
         filter(Year == year) %>% 
         rename(doy_frac = DoY) %>% #rename to capture what's actually in the column
@@ -178,10 +178,10 @@ daily_mean = sonde %>%
     # log transform (optional)
     #Xmat.1 <- log(2+Xmat.1)  
     ######################
-    # center (optional)
+    #center (optional)
     unit = rep(1,nX) #nX = number of observations
     cmean = colMeans(Xmat.1)
-    Xmat.2 = Xmat.1 - (unit%*%t(cmean)) 
+    Xmat.2 = Xmat.1 - (unit%*%t(cmean))
     ######################
     # make z scores
     csd = apply(Xmat.1, 2, sd, na.rm=T)
@@ -298,7 +298,7 @@ daily_mean = sonde %>%
       geom_point(color = '#1F78B4', size = 2) +
       geom_path(color = '#1F78B4', size = 1.5, alpha = 0.5) + 
       theme_bw() +
-      ggtitle(paste("Tuesday Lake ", year, " Multivariate DLM", sep = "")) +
+      ggtitle(paste("Paul Lake ", year, " Multivariate DLM", sep = "")) +
       geom_hline(yintercept = 1) + # when eigvals cross 1 from below = evidence of a critical transition
       geom_vline(xintercept = 162, linetype = "dashed") + #date that nutrient additions began
       xlab("") + ylab("Eigenvalues")
@@ -316,13 +316,13 @@ daily_mean = sonde %>%
   }
   
   
-  
-  ggplot(all.results, aes(x = doy, y = eigvals, color = as.factor(Year)))+
-    geom_line(size = 1)+
-    #geom_point()+
-    geom_hline(yintercept = 1)+
-    facet_wrap(~Year, nrow = 5, ncol = 1)+
-    theme_bw()
+  # 
+  # ggplot(all.results, aes(x = doy, y = eigvals, color = as.factor(Year)))+
+  #   geom_line(size = 1)+
+  #   #geom_point()+
+  #   geom_hline(yintercept = 1)+
+  #   facet_wrap(~Year, nrow = 5, ncol = 1)+
+  #   theme_bw()
   
   
   
@@ -333,7 +333,7 @@ daily_mean = sonde %>%
 write.csv(all.results, Fname)
 
 
-ggplot(all.results %>% filter(delta == 0.90), aes(x = as.numeric(doy), y = eigvals, color = as.factor(Year)))+
+ggplot(all.results %>% filter(delta == 0.94), aes(x = as.numeric(doy), y = eigvals, color = as.factor(Year)))+
   geom_line(size = 1)+
   #geom_point()+
   geom_hline(yintercept = 1)+
