@@ -321,7 +321,7 @@ ggplot(
 
 
 
-png("./figures/Figure 3 pt and ct.png", res = 600, height = 100, width = 173, units = "mm") 
+png("./figures/Figure 4 pt and ct.png", res = 600, height = 100, width = 173, units = "mm") 
 
 
 
@@ -388,7 +388,7 @@ ggplot(
   )+
   theme_bw() +
   labs(
-    x = "Day of Year",
+    x = "Date",
     y = "Chlorophyll (standard level)"
   ) +
   
