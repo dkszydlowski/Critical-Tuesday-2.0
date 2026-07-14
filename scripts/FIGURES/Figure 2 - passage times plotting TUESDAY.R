@@ -1,10 +1,13 @@
 # script for plotting passage time results for the global DDJ estimates
+# run through line 548 to get Tuesday plots for combining with Paul in passage times plotting - PAUL.R
 
 library(tidyverse)
 library(ggridges)
 library(ggpubr)
 library(ggpmisc)
 library(ggrepel)
+library(ggh4x)
+library(ggtext)
 
 
 # read in the data
@@ -314,13 +317,13 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
     aes(label = paste(..rr.label..)),
     formula = y ~ x,
     parse = TRUE,
-    geom = "label",
+    geom = "text",
     label.x = pos.df$x[pos.df$basin == "left"],
     label.y = pos.df$y[pos.df$basin == "left"],
-    fill = "white",
+    #fill = "white",
     color = "black",
-    label.size = 0.25,
-    label.r = unit(0, "lines"),
+    #label.size = 0.25,
+    #label.r = unit(0, "lines"),
     size = 3
   ) +
   stat_poly_eq(
@@ -328,13 +331,13 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
     aes(label = paste(..rr.label..)),
     formula = y ~ x,
     parse = TRUE,
-    geom = "label",
+    geom = "text",
     label.x = pos.df$x[pos.df$basin == "right"],
     label.y = pos.df$y[pos.df$basin == "right"],
-    fill = "white",
+    #fill = "white",
     color = "black",
-    label.size = 0.25,
-    label.r = unit(0, "lines"),
+    #label.size = 0.25,
+    #label.r = unit(0, "lines"),
     size = 3
   )+
   geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
@@ -343,7 +346,7 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
                   show.legend = FALSE, max.overlaps = Inf,
                   box.padding = 0.2, point.padding = 1.5,
                   force = 2, min.segment.length = 0, segment.color = NA) +
-  facet_wrap(~basin,
+  facet_wrap(~basin, scales = "free_x",
              labeller = as_labeller(c(left = "low-pigment",
                                       right = "high-pigment"))) +
   scale_fill_manual(values = c(left = "#533113",
@@ -358,6 +361,12 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
     limits = c(0.01, 100),
     breaks = c(0.01, 0.1, 1, 10, 100),
     labels = c("0.01", "0.1", "1", "10", "100"))+
+  facetted_pos_scales(
+    x = list(
+      basin == "left"  ~ scale_x_continuous(breaks = c(0.9, 1.2, 1.5, 1.8)),
+      basin == "right" ~ scale_x_continuous(breaks = c(0.9, 1.2, 1.5))
+    )
+  )+
   theme(legend.position = "none",
         strip.text = element_text(size = 12))+
   theme(
@@ -470,6 +479,7 @@ ep.global2 <- ep.global %>%
 ymax <- max(ep.global2$efective.potential)
 
 
+
 global.ep.plot <- ggplot(
   ep.global2,
   aes(
@@ -502,11 +512,22 @@ global.ep.plot <- ggplot(
     axis.title = element_text(size = 12),
     strip.text = element_text(size = 12),
     legend.position = "none",
-    plot.title = element_text(hjust = 0.5),
-    panel.grid = element_blank()
+    panel.grid = element_blank(),
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#533113",
+      color = "white",
+      face = "bold",
+      size = 13,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(5, 5, 5, 5),
+      margin = margin(b = 8)
+    )
   ) +
-  xlim(-7, 8)+
-  theme(plot.margin = margin(r = 1))+
+  xlim(-7, 8) +
+  theme(plot.margin = margin(r = 1)) +
   annotate(
     "rect",
     xmin = -7, xmax = eq,
@@ -541,13 +562,34 @@ global.ep.plot <- ggplot(
   )
 
 
-
 # png("./figures/draft 2026-02-27/passage times.png", res = 300, height = 8, width = 6, units = "in") 
 
 
 tues.all = ggarrange(global.ep.plot, ptimes, compare.to.knc, nrow = 3, ncol = 1)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################################################################################################################################
 # dev.off()
 
 ggplot(pt.mean, aes(x = total.nuts, y = (mean.minutes), color = basin))+

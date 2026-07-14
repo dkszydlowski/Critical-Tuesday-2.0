@@ -383,13 +383,13 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
     aes(label = paste(..rr.label..)),
     formula = y ~ x,
     parse = TRUE,
-    geom = "label",
+    geom = "text",
     label.x = pos.df$x[pos.df$basin == "left"],
     label.y = pos.df$y[pos.df$basin == "left"],
-    fill = "white",
+    #fill = "white",
     color = "black",
-    label.size = 0.25,
-    label.r = unit(0, "lines"),
+    #label.size = 0.25,
+    #label.r = unit(0, "lines"),
     size = 3
   ) +
   stat_poly_eq(
@@ -397,13 +397,13 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
     aes(label = paste(..rr.label..)),
     formula = y ~ x,
     parse = TRUE,
-    geom = "label",
+    geom = "text",
     label.x = pos.df$x[pos.df$basin == "right"],
     label.y = pos.df$y[pos.df$basin == "right"],
-    fill = "white",
+    #fill = "white",
     color = "black",
-    label.size = 0.25,
-    label.r = unit(0, "lines"),
+    #label.size = 0.25,
+    #label.r = unit(0, "lines"),
     size = 3
   )+
   geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
@@ -522,7 +522,7 @@ pandpt =  ggplot(pt.mean, aes(x = max.P, y = (mean.days), color = basin)) +
   ) 
 
 
-png("./figures/ASLO 2026/total nutrients and pt.png", res = 300, width = 8, height = 4, units = "in")
+#png("./figures/ASLO 2026/total nutrients and pt.png", res = 300, width = 8, height = 4, units = "in")
 #pandpt
 #dev.off()
 
@@ -532,7 +532,6 @@ ep.global = read.csv("./results/DDJ results Paul ARIMA-correced.csv") %>%
   mutate(year = "all years")
 
 eq <- -0.06 # from DDJ step
-
 
 
 ep.global2 <- ep.global %>%
@@ -562,7 +561,7 @@ global.ep.plot <- ggplot(
   ) +
   scale_fill_manual(
     values = c(
-      left  =   "#44729C",
+      left  = "#44729C",
       right = "#b4c187"
     )
   ) +
@@ -577,11 +576,22 @@ global.ep.plot <- ggplot(
     axis.title = element_text(size = 12),
     strip.text = element_text(size = 12),
     legend.position = "none",
-    plot.title = element_text(hjust = 0.5)
+    panel.grid = element_blank(),
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#44729C",
+      color = "white",
+      face = "bold",
+      size = 13,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(5, 5, 5, 5),
+      margin = margin(b = 8)
+    )
   ) +
-  xlim(-7, 8)+
-  theme(plot.margin = margin(l = 0.2),
-        panel.grid = element_blank())+
+  xlim(-7, 8) +
+  theme(plot.margin = margin(l = 0.2)) +
   # top state rectangles
   annotate(
     "rect",
@@ -614,7 +624,7 @@ global.ep.plot <- ggplot(
     color = "white",
     fontface = "bold",
     size = 4
-  ) 
+  )
 
 # png("./figures/draft 2026-02-27/passage times.png", res = 300, height = 8, width = 6, units = "in") 
 
