@@ -703,7 +703,7 @@ dat0 = dat0 %>%
   mutate(doy =  mindoy + (dat0$Tstep - dat0$year) * (maxdoy - mindoy + 1))
 
 # Load DDJ data and apply to dataframe
-load("./scripts/Langevin/HF Langevin/Langevin analysis/Results different data corrections/DDJ_HYLB_Tuesday_DLM_PAUL GLOBAL_Log_Chl_Predicted to Manual Scale POOLED AND GLOBAL NOISY 098 THINNED.Rdata")
+load("./results/DDJ results Paul ARIMA-corrected data.Rdata")
 
 low = xeq2[1]
 thresh = xeq2[2]
