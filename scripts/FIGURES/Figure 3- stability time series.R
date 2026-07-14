@@ -25,11 +25,28 @@ all.ct.ts = rbind(ct.T, ct.L)
 
 all.ct.ts$Lake <- factor(all.ct.ts$Lake, levels = c("T", "L"))
 
+# nutrient addition days
+nutrient.periods = data.frame(
+  Year = c(2013, 2014, 2015, 2024, 2025),
+  Lake = "T",   # only applies to Tuesday, not Paul
+  xmin = c(154, 153, 152, 162, 154),
+  xmax = c(238, 241, 240, 233, 198)
+)
+
+nutrient.periods$Lake = factor(nutrient.periods$Lake, levels = c("T", "L"))
+
 
 png("./figures/Figure 3 stability.png", res = 600, height = 100, width = 173, units = "mm") 
 
 
 ggplot(all.ct.ts, aes(x = doy, y = eigvals, color = Lake))+
+  geom_rect(
+    data = nutrient.periods,
+    aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf),
+    fill = "grey",
+    alpha = 0.4,
+    inherit.aes = FALSE
+  ) +
   geom_vline(
     data = crit.trans.1,
     aes(xintercept = doy),
@@ -38,7 +55,7 @@ ggplot(all.ct.ts, aes(x = doy, y = eigvals, color = Lake))+
    geom_line(size = 0.9)+
   geom_hline(yintercept = 1)+
   theme_bw()+
-  scale_color_manual(values = c("L" = "#44729C", "T" = "#533113"))+
+  scale_color_manual(values = c("L" = "#44729C", "T" = "#755A42"))+
   facet_grid2(
     Lake ~ Year,
     strip = strip_themed(
@@ -53,7 +70,7 @@ ggplot(all.ct.ts, aes(x = doy, y = eigvals, color = Lake))+
       # LAKES (left) — colored
       background_y = elem_list_rect(
         fill = c(
-          "T" = "#533113",
+          "T" = "#755A42",
           "L"    = "#44729C"
         ),
         colour = NA
@@ -75,7 +92,7 @@ ggplot(all.ct.ts, aes(x = doy, y = eigvals, color = Lake))+
     breaks = c(121, 152, 182, 213),
     labels = c("May", "Jun", "Jul", "Aug")
   )+
-  labs(x = "Date", y = "Eigenvalue")+
+  labs(x = "Date", y = "Time-varying AR coefficient")+
   theme(legend.position = "none")
   
 

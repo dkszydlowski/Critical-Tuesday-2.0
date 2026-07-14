@@ -190,7 +190,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
   geom_line(size = 1, alpha = 0.75) +
   geom_line(aes(x = doy, y = equilibria), size = 2, color = "black") +
   geom_hline(yintercept = thresh, linetype = "dashed") +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#755A42")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "DOY", y = "stdlevel")+
@@ -226,7 +226,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
     linetype = "solid",
     size = 1
   ) +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#755A42")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "DOY", y = "Chlorophyll (standard level)") +
@@ -288,7 +288,7 @@ ggplot(
     values = c(
       "Paul_low"    = "#44729C",  # blue
       "Paul_high"   = "#5a6b3a",  # green
-      "Tuesday_low" = "#533113",  # brown
+      "Tuesday_low" = "#755A42",  # brown
       "Tuesday_high"= "#5a6b3a"   # same green
     )) +
   
@@ -349,7 +349,7 @@ ggplot(
     values = c(
       "Paul_low"    = "#44729C",
       "Paul_high"   = "#5a6b3a",
-      "Tuesday_low" = "#533113",
+      "Tuesday_low" = "#755A42",
       "Tuesday_high"= "#5a6b3a"
     )
   ) +
@@ -368,7 +368,7 @@ ggplot(
       # LAKES (left) — colored
       background_y = elem_list_rect(
         fill = c(
-          "Tuesday" = "#533113",
+          "Tuesday" = "#755A42",
           "Paul"    = "#44729C"
         ),
         colour = NA

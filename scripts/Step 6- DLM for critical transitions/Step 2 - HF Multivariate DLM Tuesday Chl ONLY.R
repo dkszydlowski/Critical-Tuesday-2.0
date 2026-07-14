@@ -288,8 +288,10 @@ daily_mean = sonde %>%
     }
     
     
+    doy_dlm <- tvec[2:nX] # fixes mismatch due to predicting based on one day ahead
+    
     eigenvalues = data.frame(eigvals) %>%
-      mutate(doy = daily_mean$doy[1:length(daily_mean$doy)-1]) %>% 
+      mutate(doy = doy_dlm) %>% 
       mutate(Year = year) %>% 
       mutate(delta = delta.input) %>% 
       mutate(model.cor = cor(yhat,Xmat1[,idlm]))
@@ -330,9 +332,14 @@ daily_mean = sonde %>%
 }
 
 
+# save the data. Because it is univariate, eigenvalues are really AR(1) coefficients
 write.csv(all.results, Fname)
 
 
+
+
+
+#### plotting checks #####
 ggplot(all.results %>% filter(delta == 0.90), aes(x = as.numeric(doy), y = eigvals, color = as.factor(Year)))+
   geom_line(size = 1)+
   #geom_point()+

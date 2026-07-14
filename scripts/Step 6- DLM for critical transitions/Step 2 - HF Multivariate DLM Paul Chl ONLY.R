@@ -22,6 +22,9 @@ L.all = read.csv("./data/formatted data/HF data/Predicted Paul HYLB on Manual Sc
   mutate(Lake = "L") %>% 
   arrange(datetime)
 
+test = L.all %>% group_by(round(DoY), Year) %>% summarise(n = n())
+
+
 for(k in 1:length(years)){
   year = years[k]
   
@@ -52,12 +55,12 @@ daily_mean = sonde %>%
   summarise(
     chl_mean = mean(chl, na.rm = TRUE))%>%
   ungroup()
+
+print(sum(is.na(daily_mean$chl_mean)))
+
       
     }
-    
-    
-    
-    
+
     #Calculate daily average values
     #NOTE: can also trim to specific time periods during the day using doy_frac
     
@@ -287,9 +290,10 @@ daily_mean = sonde %>%
       weights1[it,] = lam$vectors[,1]
     }
     
+    doy_dlm <- tvec[2:nX] # fixes mismatch due to predicting based on one day ahead
     
     eigenvalues = data.frame(eigvals) %>%
-      mutate(doy = daily_mean$doy[1:length(daily_mean$doy)-1]) %>% 
+      mutate(doy = doy_dlm) %>% 
       mutate(Year = year) %>% 
       mutate(delta = delta.input) %>% 
       mutate(model.cor = cor(yhat,Xmat1[,idlm]))
@@ -333,7 +337,7 @@ daily_mean = sonde %>%
 write.csv(all.results, Fname)
 
 
-ggplot(all.results %>% filter(delta == 0.94), aes(x = as.numeric(doy), y = eigvals, color = as.factor(Year)))+
+ggplot(all.results %>% filter(delta == 0.90), aes(x = as.numeric(doy), y = eigvals, color = as.factor(Year)))+
   geom_line(size = 1)+
   #geom_point()+
   geom_hline(yintercept = 1)+
@@ -353,3 +357,59 @@ ggplot(all.results, aes(x = delta, y = model.cor, color = as.factor(Year)))+
 ggplot(all.results, aes(x = delta, y = model.cor, color = as.factor(Year)))+
   geom_point()+
   geom_line()
+
+
+
+
+
+#### diagnostics ####
+# 
+# chl_fit %>% 
+#   mutate(resid = chl_pred - chl_obs) %>%
+#   ggplot(aes(doy, resid)) + geom_point() + geom_smooth()
+# 
+# 
+#   sonde = L.all %>% 
+#     mutate(datetime = ymd_hms(datetime)) %>% 
+#     rename(doy_frac = DoY) %>% #rename to capture what's actually in the column
+#     mutate(doy = trunc(doy_frac)) %>% #create a DOY variable
+#     mutate(
+#       chl = Chl_HYLB_cal) %>% 
+#     filter(format(datetime, "%H") %in% c("06", "07", "08", "09")) %>% 
+#     select(Year, doy_frac, doy, chl)
+#   
+#   
+#   
+#   daily_mean = sonde %>% 
+#     group_by(doy, Year) %>%
+#     summarise(
+#       chl_mean = mean(chl, na.rm = TRUE))%>%
+#     ungroup()
+# 
+#   ggplot(daily_mean, aes(x = doy, y = chl_mean, color = as.factor(Year)))+
+#     geom_line()+
+#     facet_wrap(~Year)
+#   
+#   
+#   # pick one delta as your primary/reported value, e.g. 0.95
+#   crossings = all.results %>%
+#     filter(delta == 0.90) %>%
+#     arrange(Year, doy) %>%
+#     group_by(Year) %>%
+#     mutate(prev_eig = lag(eigvals)) %>%
+#     filter(prev_eig < 1 & eigvals >= 1) %>%   # crossing from below
+#     slice(1) %>%                               # first crossing that year, if there are several
+#     ungroup() %>%
+#     select(Year, doy)
+#   
+#   ggplot(daily_mean, aes(x = doy, y = chl_mean, color = as.factor(Year))) +
+#     geom_line() +
+#     geom_vline(
+#       data = crossings,
+#       aes(xintercept = doy),
+#       linetype = "dashed",
+#       color = "black",
+#       inherit.aes = FALSE
+#     ) +
+#     facet_wrap(~Year)
+#   

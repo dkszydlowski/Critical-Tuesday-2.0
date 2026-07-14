@@ -1,4 +1,5 @@
 #### plot passage times for Paul Lake #####
+# run after Figure 2- passage times plotting Tuesday
 
 # script for plotting passage time results for the global DDJ estimates
 

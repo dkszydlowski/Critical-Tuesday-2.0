@@ -276,7 +276,7 @@ compare.to.zoop = ggplot(pt.mean, aes(x = zoop.mean, y = (mean.days), color = ba
   facet_wrap(~basin,
              labeller = as_labeller(c(left = "low-pigment",
                                       right = "high-pigment"))) +
-  scale_color_manual(values = c(left = "#533113",
+  scale_color_manual(values = c(left = "#755A42",
                                 right = "#5a6b3a")) +
   labs(x = "mean zooplankton biomass (g m-2)",
        y = "mean passage time (days)") +
@@ -349,10 +349,10 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
   facet_wrap(~basin, scales = "free_x",
              labeller = as_labeller(c(left = "low-pigment",
                                       right = "high-pigment"))) +
-  scale_fill_manual(values = c(left = "#533113",
+  scale_fill_manual(values = c(left = "#755A42",
                                right = "#5a6b3a")) +
   
-  scale_color_manual(values = c(left = "#533113",
+  scale_color_manual(values = c(left = "#755A42",
                                 right = "#5a6b3a")) +
   labs(x = "non-chl light attenuation (kNC)",
        y = "mean passage time (days)") +
@@ -396,7 +396,7 @@ ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), color = basin)) +
   facet_wrap(~basin,
              labeller = as_labeller(c(left = "low-pigment",
                                       right = "high-pigment"))) +
-  scale_color_manual(values = c(left = "#533113",
+  scale_color_manual(values = c(left = "#755A42",
                                 right = "#5a6b3a")) +
   labs(x = "mean non-chl light attenuation (kNC)",
        y = "mean passage time (days)") +
@@ -439,7 +439,7 @@ pandpt =  ggplot(pt.mean, aes(x = max.P, y = (mean.days), color = basin)) +
   facet_wrap(~basin,
              labeller = as_labeller(c(left = "low-pigment",
                                       right = "high-pigment"))) +
-  scale_color_manual(values = c(left = "#533113",
+  scale_color_manual(values = c(left = "#755A42",
                                 right = "#5a6b3a")) +
   labs(x = "cumulative P added (mg m-2 d-1)",
        y = "mean passage time (days)") +
@@ -497,7 +497,7 @@ global.ep.plot <- ggplot(
   ) +
   scale_fill_manual(
     values = c(
-      left  = "#533113",
+      left  = "#755A42",
       right = "#5a6b3a"
     )
   ) +
@@ -514,7 +514,7 @@ global.ep.plot <- ggplot(
     legend.position = "none",
     panel.grid = element_blank(),
     plot.title = ggtext::element_textbox_simple(
-      fill = "#533113",
+      fill = "#755A42",
       color = "white",
       face = "bold",
       size = 13,
@@ -532,7 +532,7 @@ global.ep.plot <- ggplot(
     "rect",
     xmin = -7, xmax = eq,
     ymin = ymax * 0.95, ymax = ymax * 1.16,
-    fill = "#533113",
+    fill = "#755A42",
     color = "black"
   ) +
   annotate(

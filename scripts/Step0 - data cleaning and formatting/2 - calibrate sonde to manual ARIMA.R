@@ -1085,6 +1085,9 @@ na_gaps <- final.L %>%
 final.L = final.L %>% 
   filter(!is.na(lsonde_cal))
 
+# round up any datetimes that are 59 seconds to nearest minute
+final.L = final.L %>% 
+  mutate(datetime = round_date(datetime, unit = "minute"))
 
 ### save the Tuesday dataframe
 write.csv(final.L, "./data/formatted data/HF data/Predicted Paul HYLB on Manual Scale log-trans NOISY ARIMA.csv", row.names = FALSE)
