@@ -77,7 +77,7 @@ plot(T.all$Tscore,T.all$Chl_HYLB_cal,type='l',col='blue')
 
 # X.dlm will be the sequence over years z-scored using a common mean and s.d.
 
-useChl0 = subset(T.all,select=c(DoY, lsonde_cal, Chl_HYLB_cal, Tscore)) 
+useChl0 = subset(T.all,select=c(DoY, lsonde_cal, Chl_HYLB_cal, Tscore, datetime)) 
 # using lsonde_cal, which is the log-transformed sonde data calibrated to manual
 
 print(c('dim of selected data = ',dim(useChl0)),quote=F)
@@ -199,6 +199,6 @@ plot(dens.lev$x,dens.lev$y,type='l',lwd=2,col='forestgreen',xlab='level of log c
 plot(dens.slev$x,dens.slev$y,type='l',lwd=2,col='forestgreen',xlab='Standardized Level',
      ylab='density')
 
-save(useChl,Tstep,X.dlm,level,levelsd,stdlevel,Yyhat,B.ests,B.sd,errvar,nl,delta,file=Fname)
+save(useChl,Tstep,X.dlm,level,levelsd,stdlevel,Yyhat,B.ests,B.sd,errvar,nl,delta,useChl,file=Fname)
 print(Fname,quote=F)
 

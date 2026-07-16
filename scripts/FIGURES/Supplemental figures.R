@@ -10,7 +10,7 @@ library(ggtext)
 
 
 
-#### plot kNC boxplots for both Paul and Tuesday ####
+#### FIGURE S1 - plot kNC boxplots for both Paul and Tuesday ####
 
 data = read.csv("./data/formatted data/simulation model inputs 2013-2015 2024 2025 v4.csv") %>% 
   filter(Lake %in% c("L", "T")) %>% 
@@ -77,11 +77,146 @@ ggarrange(DOC.comp, thermo.comp, PAR.comp, kNC.comp, common.legend = TRUE, nrow 
 
 
 
+#### FIGURES S2 and S3 - Plot weekly zooplankton for both lakes ####
+
+zoops = read.csv("./data/formatted data/cascade_zooplankton_v07_DTH.csv")
+
+# sum by year and doy
+sum.zoops = zoops %>% 
+  group_by(year4, lakeid, daynum) %>% 
+  summarize(total.biomass = sum(biomass, na.rm = TRUE)) %>% 
+  filter(lakeid %in% c("L", "T"))
+
+
+ggplot(sum.zoops, aes(x = as.factor(year4), y = total.biomass, color = lakeid))+
+  geom_boxplot()
+
+
+mean.biomass = sum.zoops %>% 
+  filter(year4 %in% c(2013:2015, 2024, 2025)) %>% 
+  group_by(year4, lakeid) %>% 
+  summarize(mean.biomass = median(total.biomass, na.rm = TRUE),
+            sd.biomass = sd(total.biomass, na.rm = TRUE))
+
+
+# filter to relevant years and lakes and plot for supplement
+sum.zoops.relevant = sum.zoops %>% 
+  filter(year4 %in% c(2013:2015, 2024, 2025))
+
+
+week.zoop.bio = ggplot(sum.zoops.relevant, aes(x = as.factor(year4), y = total.biomass, fill = lakeid))+
+  geom_boxplot()+
+  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
+                    labels = c("L" = "Paul", "T" = "Tuesday"))+
+  theme_bw()+
+  labs(x = "", y = expression("Weekly zooplankton biomass (g/m"^2*")"))+
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12))
+
+
+zoops.relevant = zoops %>% 
+  filter(lakeid %in% c("L", "T"), year4 %in% c(2013:2015, 2024, 2025))
+
+ggplot(zoops.relevant, aes(x = biomass, fill = group_code)) + 
+  geom_histogram(position = "stack") + 
+  # scale_fill_discrete(palette = c("#0f3375", "#046dc8","#6fb1a0", "#a1c349", "#1f6924","#b4418e", "#ea515f", "#fe7434","#fea802")) +
+  # scale_x_continuous(transform = "log10") +
+  theme_bw() + 
+  facet_grid(lakename~year4) +
+  # facet_wrap(~year_frac) + 
+  # ggtitle("Tuesday Zooplankton Biomass Distributions",
+  #         subtitle = "Sample dates ordered from spring to late summer") +
+  xlab("Biomass")
 
 
 
 
-#### ARIMA fitted vs observed #####
+ggplot(zoops.relevant %>% filter(taxon_name == "Daphnia"), aes(x = biomass, fill = group_code)) + 
+  geom_histogram(position = "stack") + 
+  # scale_fill_discrete(palette = c("#0f3375", "#046dc8","#6fb1a0", "#a1c349", "#1f6924","#b4418e", "#ea515f", "#fe7434","#fea802")) +
+  # scale_x_continuous(transform = "log10") +
+  theme_bw() + 
+  facet_grid(lakename~year4) +
+  # facet_wrap(~year_frac) + 
+  # ggtitle("Tuesday Zooplankton Biomass Distributions",
+  #         subtitle = "Sample dates ordered from spring to late summer") +
+  xlab("Biomass")
+
+
+
+zoops.relevant = zoops.relevant %>% 
+  mutate(lakename = factor(lakename, levels = c("Tuesday Lake", "Paul Lake")))
+
+
+week.daph.bio = ggplot(zoops.relevant  %>% filter(taxon_name == "Daphnia"), aes(x = as.factor(year4), y = biomass,  fill = lakeid)) + 
+  geom_boxplot() + 
+  # scale_fill_discrete(palette = c("#0f3375", "#046dc8","#6fb1a0", "#a1c349", "#1f6924","#b4418e", "#ea515f", "#fe7434","#fea802")) +
+  # scale_x_continuous(transform = "log10") +
+  theme_bw()+
+  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
+                    labels = c("L" = "Paul", "T" = "Tuesday"))+
+  labs(x = "", y = expression("Weekly Daphnia biomass (g/m"^2*")"))+
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12))
+
+
+png("./figures/Supplemental figures/Figure S2 zoop boxplots.png", res = 600, height = 120, width = 225, units = "mm") 
+
+ggarrange(week.zoop.bio, week.daph.bio, nrow = 1, ncol = 2, common.legend = TRUE)
+
+dev.off()
+
+
+png("./figures/Supplemental figures/Figure S3 zoop histograms.png", res = 600, height = 120, width = 225, units = "mm") 
+
+
+ggplot(zoops.relevant, aes(x = log10(biomass), fill = group_code)) + 
+  geom_histogram(position = "stack") +
+  scale_fill_viridis_d(option = "mako", direction = -1, end = 0.8,
+                       labels = c(
+                         "CCOP" = "Carnivorous copepods",
+                         "OCOP"  = "Omnivorous copepods",
+                         "CLAD" = "Cladocerans",
+                         "ROT"  = "Rotifers"
+                       )) +
+  theme_bw() + 
+  facet_grid2(
+    lakename ~ year4,
+    strip = strip_themed(
+      background_x = elem_list_rect(fill = "transparent", colour = NA),
+      text_x = elem_list_text(size = 10),
+      background_y = elem_list_rect(
+        fill = c("Tuesday" = "#755A42", "Paul" = "#44729C"),
+        colour = NA
+      ),
+      text_y = elem_list_text(color = "white", size = 12)
+    ),
+    labeller = labeller(
+      lakename = c(
+        "Tuesday Lake" = "Tuesday Lake\n (experimental)",
+        "Paul Lake" = "Paul Lake\n (reference)"
+      )
+    )
+  ) +
+  xlab(expression(" log10(zooplankton biomass g/m"^2*")")) +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 12), 
+        legend.position = "top")
+
+
+dev.off()
+
+
+
+
+
+
+
+#### FIGURES S4 and S5 - ARIMA fitted vs observed #####
 t.arima = read.csv("./results/ARIMA model fits/Tuesday ARIMA fits.csv") %>% 
   mutate(lake = "T")
 L.arima = read.csv("./results/ARIMA model fits/Paul ARIMA fits.csv")
@@ -145,7 +280,7 @@ dev.off()
 
 
 
-##### ARIMA time series manual and corrected sonde #####
+## ARIMA time series manual and corrected sonde ###
 l.corrected = read.csv("./results/ARIMA model fits/Paul HF and manual corrected for comparison.csv") %>% 
   mutate(lake = "L")
 
@@ -207,9 +342,227 @@ dev.off()
 
 
 
+#-------------------------------------------------------------------------------------------------------------------------------------------#
+#### FIGURES S6 - S10: PLOT DLM RESULTS #####
 
 
-#### actual DDJ results ####
+load('./results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOISY ARIMA.Rdata')
+
+Nstep = length(Tstep)
+
+dlm.results.actual = data.frame(Tstep = Tstep, X.dlm = X.dlm, datetime = useChl$datetime)
+dlm.results.predicted = data.frame(Tstep = Tstep[2:Nstep], yhat = Yyhat[, 3], datetime = useChl$datetime[2:Nstep])
+
+dlm.results.tuesday = dlm.results.actual %>% 
+  full_join(dlm.results.predicted, by = c("Tstep", "datetime")) %>% 
+  mutate(year = floor(Tstep), lake = "T")
+
+load('./results/DLMresult_HYLB_Paul_ALL_Chl_Predicted to Manual Scale 098 NOISY ARIMA.Rdata')
+
+Nstep = length(Tstep)
+
+dlm.results.actual = data.frame(Tstep = Tstep, X.dlm = X.dlm, datetime = useChl$datetime)
+dlm.results.predicted = data.frame(Tstep = Tstep[2:Nstep], yhat = Yyhat[, 3], datetime = useChl$datetime[2:Nstep])
+
+dlm.results.paul = dlm.results.actual %>% 
+  full_join(dlm.results.predicted, by = c("Tstep", "datetime")) %>% 
+  mutate(year = floor(Tstep), lake = "L")
+
+
+
+# combine
+all.dlm = bind_rows(dlm.results.tuesday, dlm.results.paul) %>% 
+  mutate(lake = factor(lake, levels = c("T", "L")))   # Tuesday row on top
+
+
+png("./figures/Supplemental figures/Figure S6 2013 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+
+
+# combined plot: Tuesday & Paul side by side, all years
+ggplot(all.dlm %>% filter(year == 2013), aes(x = ymd_hms(datetime))) +
+  geom_point(aes(y = X.dlm), color = "black", size = 0.3, alpha = 0.3) +
+  geom_line(aes(y = yhat, color = lake), size = 0.6) +
+  scale_color_manual(values = c("T" = "#755A42", "L" = "#44729C")) +
+  facet_grid2(
+    lake ~ year,
+    scales = "free_x",
+    strip = strip_themed(
+      background_x = elem_list_rect(fill = "transparent", colour = NA),
+      text_x = elem_list_text(size = 12),
+      background_y = elem_list_rect(
+        fill = c("T" = "#755A42", "L" = "#44729C"),
+        colour = NA
+      ),
+      text_y = elem_list_text(color = "white", size = 12)
+    ),
+    labeller = labeller(
+      lake = c("T" = "Tuesday (experimental)", "L" = "Paul (reference)")
+    )
+  ) +
+  theme_bw() +
+  labs(x = "Date", y = "Standardized level of chlorophyll") +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 16),
+    strip.text = element_text(size = 16),
+    legend.position = "none"
+  )
+
+dev.off()
+
+
+
+
+png("./figures/Supplemental figures/Figure S7 2014 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+
+
+# combined plot: Tuesday & Paul side by side, all years
+ggplot(all.dlm %>% filter(year == 2014), aes(x = ymd_hms(datetime))) +
+  geom_point(aes(y = X.dlm), color = "black", size = 0.3, alpha = 0.3) +
+  geom_line(aes(y = yhat, color = lake), size = 0.6) +
+  scale_color_manual(values = c("T" = "#755A42", "L" = "#44729C")) +
+  facet_grid2(
+    lake ~ year,
+    scales = "free_x",
+    strip = strip_themed(
+      background_x = elem_list_rect(fill = "transparent", colour = NA),
+      text_x = elem_list_text(size = 12),
+      background_y = elem_list_rect(
+        fill = c("T" = "#755A42", "L" = "#44729C"),
+        colour = NA
+      ),
+      text_y = elem_list_text(color = "white", size = 12)
+    ),
+    labeller = labeller(
+      lake = c("T" = "Tuesday (experimental)", "L" = "Paul (reference)")
+    )
+  ) +
+  theme_bw() +
+  labs(x = "Date", y = "Standardized level of chlorophyll") +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 16),
+    strip.text = element_text(size = 16),
+    legend.position = "none"
+  )
+
+dev.off()
+
+
+
+png("./figures/Supplemental figures/Figure S8 2015 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+
+
+# combined plot: Tuesday & Paul side by side, all years
+ggplot(all.dlm %>% filter(year == 2015), aes(x = ymd_hms(datetime))) +
+  geom_point(aes(y = X.dlm), color = "black", size = 0.3, alpha = 0.3) +
+  geom_line(aes(y = yhat, color = lake), size = 0.6) +
+  scale_color_manual(values = c("T" = "#755A42", "L" = "#44729C")) +
+  facet_grid2(
+    lake ~ year,
+    scales = "free_x",
+    strip = strip_themed(
+      background_x = elem_list_rect(fill = "transparent", colour = NA),
+      text_x = elem_list_text(size = 12),
+      background_y = elem_list_rect(
+        fill = c("T" = "#755A42", "L" = "#44729C"),
+        colour = NA
+      ),
+      text_y = elem_list_text(color = "white", size = 12)
+    ),
+    labeller = labeller(
+      lake = c("T" = "Tuesday (experimental)", "L" = "Paul (reference)")
+    )
+  ) +
+  theme_bw() +
+  labs(x = "Date", y = "Standardized level of chlorophyll") +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 16),
+    strip.text = element_text(size = 16),
+    legend.position = "none"
+  )
+
+dev.off()
+
+
+
+png("./figures/Supplemental figures/Figure S9 2024 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+
+
+# combined plot: Tuesday & Paul side by side, all years
+ggplot(all.dlm %>% filter(year == 2024), aes(x = ymd_hms(datetime))) +
+  geom_point(aes(y = X.dlm), color = "black", size = 0.3, alpha = 0.3) +
+  geom_line(aes(y = yhat, color = lake), size = 0.6) +
+  scale_color_manual(values = c("T" = "#755A42", "L" = "#44729C")) +
+  facet_grid2(
+    lake ~ year,
+    scales = "free_x",
+    strip = strip_themed(
+      background_x = elem_list_rect(fill = "transparent", colour = NA),
+      text_x = elem_list_text(size = 12),
+      background_y = elem_list_rect(
+        fill = c("T" = "#755A42", "L" = "#44729C"),
+        colour = NA
+      ),
+      text_y = elem_list_text(color = "white", size = 12)
+    ),
+    labeller = labeller(
+      lake = c("T" = "Tuesday (experimental)", "L" = "Paul (reference)")
+    )
+  ) +
+  theme_bw() +
+  labs(x = "Date", y = "Standardized level of chlorophyll") +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 16),
+    strip.text = element_text(size = 16),
+    legend.position = "none"
+  )
+
+dev.off()
+
+
+
+
+png("./figures/Supplemental figures/Figure S10 2025 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+
+
+# combined plot: Tuesday & Paul side by side, all years
+ggplot(all.dlm %>% filter(year == 2025), aes(x = ymd_hms(datetime))) +
+  geom_point(aes(y = X.dlm), color = "black", size = 0.3, alpha = 0.3) +
+  geom_line(aes(y = yhat, color = lake), size = 0.6) +
+  scale_color_manual(values = c("T" = "#755A42", "L" = "#44729C")) +
+  facet_grid2(
+    lake ~ year,
+    scales = "free_x",
+    strip = strip_themed(
+      background_x = elem_list_rect(fill = "transparent", colour = NA),
+      text_x = elem_list_text(size = 12),
+      background_y = elem_list_rect(
+        fill = c("T" = "#755A42", "L" = "#44729C"),
+        colour = NA
+      ),
+      text_y = elem_list_text(color = "white", size = 12)
+    ),
+    labeller = labeller(
+      lake = c("T" = "Tuesday (experimental)", "L" = "Paul (reference)")
+    )
+  ) +
+  theme_bw() +
+  labs(x = "Date", y = "Standardized level of chlorophyll") +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 16),
+    strip.text = element_text(size = 16),
+    legend.position = "none"
+  )
+
+dev.off()
+
+
+
+#### FIGURE S11 - actual DDJ results ####
 load('./results/DDJ results Tuesday ARIMA-corrected data.Rdata')
 
 ddj.result = data.frame(D1, D2, avec)
@@ -341,160 +694,24 @@ ggarrange(nrow = 2, ncol = 2, DDJ.plot, DDJ.plot.L, EP.plot, EP.plot.L)
 dev.off()
 
 
-#-------------------------------------------------------------------------------------------------------------------------------------------#
-#### PLOT DLM RESULTS #####
-load('./results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOISY ARIMA.Rdata')
 
 
-# plot(Tstep, X.dlm,
-#      type = 'l',
-#      col = 'forestgreen',
-#      xlab = 'DoY index',
-#      ylab = 'X.dlm',
-#      main = 'Chl for DLM')
-# 
-# # Add model estimates as points
-# points(Tstep[2:Nstep], Yyhat[,3],
-#        pch = 16,
-#        col = 'red')
-
-### make a dataframe for plotting ###
-
-dlm.results.actual = data.frame(Tstep = Tstep, X.dlm = X.dlm )
-
-dlm.results.predicted = data.frame(Tstep = Tstep[2:Nstep], yhat = Yyhat[, 3])
-
-all.dlm = dlm.results.actual %>% 
-  full_join(dlm.results.predicted, by = "Tstep") %>% 
-  mutate(year = floor(Tstep))
-
-ggplot(all.dlm, aes(x = Tstep)) +
-  geom_line(aes(y = X.dlm, color = "Observed")) +
-  geom_point(aes(y = yhat, color = "Modeled"),
-             size = 0.1, alpha = 0.5) +
-  scale_color_manual(
-    name = NULL,
-    values = c("Observed" = "darkblue",
-               "Modeled"  = "seagreen")
-  ) +
-  facet_wrap(~year, scales = "free_x", nrow = 2, ncol = 3) +
-  theme_bw() +
-  labs(x = "Time", y = "Standardized level of chlorophyll") +
-  theme(
-    axis.text = element_text(size = 10),
-    axis.title = element_text(size = 16),
-    strip.text = element_text(size = 16)
-  )
-
-
-ggplot(all.dlm %>% filter(year == 2013), aes(x = Tstep)) +
-  geom_line(aes(y = X.dlm, color = "Observed")) +
-  geom_point(aes(y = yhat, color = "Modeled"),
-             size = 1.5, alpha = 0.4) +
-  scale_color_manual(
-    name = NULL,
-    values = c("Observed" = "darkblue",
-               "Modeled"  = "seagreen")
-  ) +
-  facet_wrap(~year, scales = "free_x", nrow = 2, ncol = 3) +
-  theme_bw() +
-  labs(x = "Time", y = "Standardized level of chlorophyll") +
-  theme(
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16),
-    strip.text = element_text(size = 16),
-    legend.text = element_text(size = 14),      # increase legend text
-    legend.key.size = unit(1.5, "lines")
-  )
+#### FIGURE S12 - Full distributions of passage times #####
 
 
 
 
-ggplot(all.dlm %>% filter(year == 2014), aes(x = Tstep)) +
-  geom_line(aes(y = X.dlm, color = "Observed")) +
-  geom_point(aes(y = yhat, color = "Modeled"),
-             size = 1.5, alpha = 0.4) +
-  scale_color_manual(
-    name = NULL,
-    values = c("Observed" = "darkblue",
-               "Modeled"  = "seagreen")
-  ) +
-  facet_wrap(~year, scales = "free_x", nrow = 2, ncol = 3) +
-  theme_bw() +
-  labs(x = "Time", y = "Standardized level of chlorophyll") +
-  theme(
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16),
-    strip.text = element_text(size = 16),
-    legend.text = element_text(size = 14),      # increase legend text
-    legend.key.size = unit(1.5, "lines")
-  )
+
+
+#### FIGURE S13 - passage times compared to nutrient loading #####
 
 
 
-ggplot(all.dlm %>% filter(year == 2015), aes(x = Tstep)) +
-  geom_line(aes(y = X.dlm, color = "Observed")) +
-  geom_point(aes(y = yhat, color = "Modeled"),
-             size = 1.5, alpha = 0.4) +
-  scale_color_manual(
-    name = NULL,
-    values = c("Observed" = "darkblue",
-               "Modeled"  = "seagreen")
-  ) +
-  facet_wrap(~year, scales = "free_x", nrow = 2, ncol = 3) +
-  theme_bw() +
-  labs(x = "Time", y = "Standardized level of chlorophyll") +
-  theme(
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16),
-    strip.text = element_text(size = 16),
-    legend.text = element_text(size = 14),      # increase legend text
-    legend.key.size = unit(1.5, "lines")
-  )
 
 
 
-ggplot(all.dlm %>% filter(year == 2024), aes(x = Tstep)) +
-  geom_line(aes(y = X.dlm, color = "Observed")) +
-  geom_point(aes(y = yhat, color = "Modeled"),
-             size = 1.5, alpha = 0.4) +
-  scale_color_manual(
-    name = NULL,
-    values = c("Observed" = "darkblue",
-               "Modeled"  = "seagreen")
-  ) +
-  facet_wrap(~year, scales = "free_x", nrow = 2, ncol = 3) +
-  theme_bw() +
-  labs(x = "Time", y = "Standardized level of chlorophyll") +
-  theme(
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16),
-    strip.text = element_text(size = 16),
-    legend.text = element_text(size = 14),      # increase legend text
-    legend.key.size = unit(1.5, "lines")
-  )
+#### FIGURE S14 - passage times compared to mean zooplankton biomass #####
 
-
-
-ggplot(all.dlm %>% filter(year == 2025), aes(x = Tstep)) +
-  geom_line(aes(y = X.dlm, color = "Observed")) +
-  geom_point(aes(y = yhat, color = "Modeled"),
-             size = 1.5, alpha = 0.4) +
-  scale_color_manual(
-    name = NULL,
-    values = c("Observed" = "darkblue",
-               "Modeled"  = "seagreen")
-  ) +
-  facet_wrap(~year, scales = "free_x", nrow = 2, ncol = 3) +
-  theme_bw() +
-  labs(x = "Time", y = "Standardized level of chlorophyll") +
-  theme(
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16),
-    strip.text = element_text(size = 16),
-    legend.text = element_text(size = 14),      # increase legend text
-    legend.key.size = unit(1.5, "lines")
-  )
 
 
 
@@ -504,7 +721,7 @@ ggplot(all.dlm %>% filter(year == 2025), aes(x = Tstep)) +
 
 
 #=========================================================================================================================#
-#### plotting the bootstrapped results #####
+#### FIGURE S15- plotting the bootstrapped DDJ and EP #####
 
 ## TUESDAY ##
 
@@ -571,7 +788,7 @@ DDJboot = ggplot(drift_diff_avg,
     axis.title = element_text(size = 14),
     axis.text = element_text(size = 12),
     legend.text = element_text(size = 12),
-    legend.position = c(0.05, 0.95),          # coordinates inside plot
+    legend.position = c(0.05, 0.80),          # coordinates inside plot
     legend.justification = c(0, 0),           # aligns bottom-left of legend box to these coordinates
       plot.title = ggtext::element_textbox_simple(
         fill = "#755A42",
@@ -677,7 +894,7 @@ ggarrange(DDJboot, EP.boot, nrow = 2, ncol = 1, align = "v")
 
 
 
-### PAUL ####
+### PAUL ###
 
 load('./results/bootstrapped results/DDJ_boot_Paul 1000.Rdata')
 
@@ -742,7 +959,7 @@ DDJboot.L = ggplot(drift_diff_avg,
     axis.title = element_text(size = 14),
     axis.text = element_text(size = 12),
     legend.text = element_text(size = 12),
-    legend.position = c(0.05, 0.95),          # coordinates inside plot
+    legend.position = c(0.05, 0.80),          # coordinates inside plot
     legend.justification = c(0, 0),           # aligns bottom-left of legend box to these coordinates
       plot.title = ggtext::element_textbox_simple(
         fill = "#44729C",
@@ -852,107 +1069,10 @@ ggarrange(DDJboot, DDJboot.L, EP.boot, EP.boot.L, nrow = 2, ncol = 2, align = "v
 dev.off()
 
 
-### all the zoop data combined by Dat 
-
-zoops = read.csv("R:/Cascade/Data/2025 Data and Daily Code/24-25 Zooplankton/cascade_zooplankton_v07_DTH.csv")
-
-# sum by year and doy
-sum.zoops = zoops %>% 
-  group_by(year4, lakeid, daynum) %>% 
-  summarize(total.biomass = sum(biomass, na.rm = TRUE)) %>% 
-  filter(lakeid %in% c("L", "T"))
-
-
-ggplot(sum.zoops, aes(x = as.factor(year4), y = total.biomass, color = lakeid))+
-  geom_boxplot()
-
-
-mean.biomass = sum.zoops %>% 
-  filter(year4 %in% c(2013:2015, 2024, 2025)) %>% 
-  group_by(year4, lakeid) %>% 
-  summarize(mean.biomass = median(total.biomass, na.rm = TRUE),
-            sd.biomass = sd(total.biomass, na.rm = TRUE))
-
-
-# filter to relevant years and lakes and plot for supplement
-sum.zoops.relevant = sum.zoops %>% 
-  filter(year4 %in% c(2013:2015, 2024, 2025))
-
-
-week.zoop.bio = ggplot(sum.zoops.relevant, aes(x = as.factor(year4), y = total.biomass, fill = lakeid))+
-  geom_boxplot()+
-  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
-                    labels = c("L" = "Paul", "T" = "Tuesday"))+
-  theme_bw()+
-  labs(x = "", y = expression("Weekly zooplankton biomass (g/m"^2*")"))+
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12),
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12))
-
-
-zoops.relevant = zoops %>% 
-  filter(lakeid %in% c("L", "T"), year4 %in% c(2013:2015, 2024, 2025))
-
-ggplot(zoops.relevant, aes(x = biomass, fill = group_code)) + 
-  geom_histogram(position = "stack") + 
-  # scale_fill_discrete(palette = c("#0f3375", "#046dc8","#6fb1a0", "#a1c349", "#1f6924","#b4418e", "#ea515f", "#fe7434","#fea802")) +
-  # scale_x_continuous(transform = "log10") +
-  theme_bw() + 
-  facet_grid(lakename~year4) +
-  # facet_wrap(~year_frac) + 
-  # ggtitle("Tuesday Zooplankton Biomass Distributions",
-  #         subtitle = "Sample dates ordered from spring to late summer") +
-  xlab("Biomass")
 
 
 
 
-ggplot(zoops.relevant %>% filter(taxon_name == "Daphnia"), aes(x = biomass, fill = group_code)) + 
-  geom_histogram(position = "stack") + 
-  # scale_fill_discrete(palette = c("#0f3375", "#046dc8","#6fb1a0", "#a1c349", "#1f6924","#b4418e", "#ea515f", "#fe7434","#fea802")) +
-  # scale_x_continuous(transform = "log10") +
-  theme_bw() + 
-  facet_grid(lakename~year4) +
-  # facet_wrap(~year_frac) + 
-  # ggtitle("Tuesday Zooplankton Biomass Distributions",
-  #         subtitle = "Sample dates ordered from spring to late summer") +
-  xlab("Biomass")
 
 
-
-
-ggplot(zoops.relevant, aes(x = log10(biomass), fill = group_code)) + 
-  geom_histogram(position = "stack") +
-  scale_fill_viridis_d(option = "rocket", direction = -1, end = 0.8,
-                       labels = c(
-                         "CCOP" = "Carnivorous copepods",
-                         "OCOP"  = "Omnivorous copepods",
-                         "CLAD" = "Cladocerans",
-                         "ROT"  = "Rotifers"
-                       )) +
-  # scale_x_continuous(transform = "log10") +
-  theme_bw() + 
-  facet_grid(lakename~year4) +
-  # facet_wrap(~year_frac) + 
-  # ggtitle("Tuesday Zooplankton Biomass Distributions",
-  #         subtitle = "Sample dates ordered from spring to late summer") +
-  xlab(expression(" log10(zooplankton biomass g/m"^2*")"))+
-  theme(legend.title = element_blank())
-
-
-
-week.daph.bio = ggplot(zoops.relevant  %>% filter(taxon_name == "Daphnia"), aes(x = as.factor(year4), y = biomass,  fill = lakeid)) + 
-  geom_boxplot() + 
-  # scale_fill_discrete(palette = c("#0f3375", "#046dc8","#6fb1a0", "#a1c349", "#1f6924","#b4418e", "#ea515f", "#fe7434","#fea802")) +
-  # scale_x_continuous(transform = "log10") +
-  theme_bw()+
-  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
-                    labels = c("L" = "Paul", "T" = "Tuesday"))+
-  labs(x = "", y = expression("Weekly Daphnia biomass (g/m"^2*")"))+
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12),
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12))
-
-ggarrange(week.zoop.bio, week.daph.bio, nrow = 1, ncol = 2, common.legend = TRUE)
+#### FIGURE S16 - Bootstrapped passage times compared to kNC ####
