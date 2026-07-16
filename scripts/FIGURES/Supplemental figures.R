@@ -4,6 +4,9 @@ library(tidyverse)
 library(ggpubr)
 library(ggh4x)
 library(ggtext)
+library(ggrepel)
+library(ggpmisc)
+library(patchwork)
 
 
 
@@ -699,26 +702,528 @@ dev.off()
 #### FIGURE S12 - Full distributions of passage times #####
 
 
+### Tuesday 
+
+# read in the data
+t25 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2025 global 2026-06-18 THINNED.csv")
+t24 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2024 global 2026-06-18 THINNED.csv")
+t15 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2015 global 2026-06-18 THINNED.csv")
+t14 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2014 global 2026-06-18 THINNED.csv")
+t13 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2013 global 2026-06-18 THINNED.csv")
+
+pt.all = rbind(t25, t24, t15, t14, t13) %>% 
+  mutate(hours = minutes/60) 
+
+pt.days = pt.all %>% 
+  mutate(days = hours/24)
+
+green_palette <- c("#CBD4AC", "#b4c187", "#80914b", "#5a6b3a", "#496231")
+brown_palette <- c("#CFB491", "#9c7744", "#8c5c2b", "#533113", "#361c07")
 
 
 
 
-#### FIGURE S13 - passage times compared to nutrient loading #####
+
+ptimes = ggarrange(lb.plot, rb.plot, align = "h")
+
+
+### version of the plot with no filtering for > 30 minutes ###
+rb.plot = ggplot(pt.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
+  geom_boxplot(alpha = 0.8)+
+  geom_point()+
+  labs(y = "", x = "Year", title = "high-pigment") +
+  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+  scale_fill_manual(values = green_palette)+
+  theme_classic()+
+  scale_y_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100))+
+  theme(legend.position = "none")+
+  theme(
+    axis.text.y  = element_text(size = 12),
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+    axis.title = element_text(size = 12),
+    strip.text = element_text(size = 12),
+    legend.position = "none",
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#5a6b3a",
+      color = "white",
+      face = "bold",
+      size = 12,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(4, 4, 4, 4),
+      margin = margin(b = 6)
+    )
+  ) +
+  theme(plot.margin = margin(l = 0, r = 0, t = 0, b = 0))
+
+
+
+lb.plot = ggplot(pt.all %>% filter(basin == "left"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
+  geom_boxplot(alpha = 0.8)+
+  geom_point()+
+  labs(y = "passage time (days)", x = "Year", title = "low-pigment") +
+  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+  scale_fill_manual(values = rev(brown_palette))+
+  theme_classic()+
+  scale_y_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100))+
+  theme(legend.position = "none")+
+  theme(
+    axis.text.y  = element_text(size = 12),
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+    axis.title = element_text(size = 12),
+    strip.text = element_text(size = 12),
+    legend.position = "none",
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#755A42",
+      color = "white",
+      face = "bold",
+      size = 12,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(4, 4, 4, 4),
+      margin = margin(b = 6)
+    )
+  ) +
+  theme(plot.margin = margin(l = 0, r = 0, t = 0, b = 0))
+
+
+
+### density ridgeline plots of passage time ###
+
+pt.left.density =  ggplot(
+  pt.all %>% filter(basin == "left"),
+  aes(x = (hours)/24, y = factor(year), fill = factor(year))
+) +
+  geom_density_ridges(scale = 1.2, alpha = 0.8, color = "white") +
+  scale_fill_manual(values = rev(brown_palette)) +
+  scale_x_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100), labels = c("0.1", "1", "10", "100")) +
+  labs(
+    x = "passage time (days)",
+    y = "Year",
+    title = ""
+  ) +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    legend.position = "none"
+  )+ 
+  geom_vline(xintercept = 0.5/24, linetype = "dashed", size = 0.7)
+
+
+pt.right.density = ggplot(
+  pt.all %>% filter(basin == "right"),
+  aes(x = (hours)/24, y = factor(year), fill = factor(year))
+) +
+  geom_density_ridges(scale = 1.2, alpha = 0.8, color = "white") +
+  scale_fill_manual(values = (green_palette)) +
+  scale_x_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100), labels = c("0.1", "1", "10", "100")) +
+  labs(
+    x = "passage time (days)",
+    y = "",
+    title = ""
+  ) +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    legend.position = "none"
+  )+
+  geom_vline(xintercept = 0.5/24, linetype = "dashed", size = 0.7)
+
+
+
+# banner plot
+banner = ggplot() +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "#755A42", color = "black")) +
+  annotate("text", x = 0.5, y = 0.5, label = "Tuesday Lake (experimental)",
+           color = "white", fontface = "bold", size = 5) +
+  xlim(0, 1) + ylim(0, 1)
+
+# your existing 2x2 grid
+pt.grid = ggarrange(lb.plot, rb.plot, pt.left.density, pt.right.density, nrow = 2, ncol = 2)
+
+# stack banner on top
+tues.pt = ggarrange(banner, pt.grid, nrow = 2, heights = c(0.08, 1))
 
 
 
 
+### Paul
+
+# read in the data
+t25 = read.csv("./results/passage times/Paul ARIMA-corrected 2025 global 2026-06-18 THINNED.csv")
+t24 = read.csv("./results/passage times/Paul ARIMA-corrected 2024 global 2026-06-18 THINNED.csv")
+t15 = read.csv("./results/passage times/Paul ARIMA-corrected 2015 global 2026-06-18 THINNED.csv")
+t14 = read.csv("./results/passage times/Paul ARIMA-corrected 2014 global 2026-06-18 THINNED.csv")
+t13 = read.csv("./results/passage times/Paul ARIMA-corrected 2013 global 2026-06-18 THINNED.csv")
+
+pt.all = rbind(t25, t24, t15, t14, t13) %>% 
+  mutate(hours = minutes/60) 
+
+pt.days = pt.all %>% 
+  mutate(days = hours/24)
+
+green_palette <- c("#CBD4AC", "#b4c187", "#80914b", "#5a6b3a", "#496231")
+
+blue_palette <- c(
+  "#B4C5CF",
+  "#44729C",
+  "#2B5A8C",
+  "#133353",
+  "#071C36"
+)
+
+
+
+
+
+ptimes = ggarrange(lb.plot, rb.plot, align = "h")
+
+
+### version of the plot with no filtering for > 30 minutes ###
+rb.plot = ggplot(pt.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
+  geom_boxplot(alpha = 0.8)+
+  geom_point()+
+  labs(y = "", x = "Year", title = "high-pigment") +
+  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+  scale_fill_manual(values = green_palette)+
+  theme_classic()+
+  scale_y_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100))+
+  theme(legend.position = "none")+
+  theme(
+    axis.text.y  = element_text(size = 12),
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+    axis.title = element_text(size = 12),
+    strip.text = element_text(size = 12),
+    legend.position = "none",
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#b4c187",
+      color = "white",
+      face = "bold",
+      size = 12,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(4, 4, 4, 4),
+      margin = margin(b = 6)
+    )
+  ) +
+  theme(plot.margin = margin(l = 0, r = 0, t = 0, b = 0))
+
+
+
+lb.plot = ggplot(pt.all %>% filter(basin == "left"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
+  geom_boxplot(alpha = 0.8)+
+  geom_point()+
+  labs(y = "", x = "Year", title = "low-pigment") +
+  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+  scale_fill_manual(values = rev(blue_palette))+
+  theme_classic()+
+  scale_y_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100))+
+  theme(legend.position = "none")+
+  theme(
+    axis.text.y  = element_text(size = 12),
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+    axis.title = element_text(size = 12),
+    strip.text = element_text(size = 12),
+    legend.position = "none",
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#44729C",
+      color = "white",
+      face = "bold",
+      size = 12,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(4, 4, 4, 4),
+      margin = margin(b = 6)
+    )
+  ) +
+  theme(plot.margin = margin(l = 0, r = 0, t = 0, b = 0))
+
+
+
+### density ridgeline plots of passage time ###
+
+pt.left.density =  ggplot(
+  pt.all %>% filter(basin == "left"),
+  aes(x = (hours)/24, y = factor(year), fill = factor(year))
+) +
+  geom_density_ridges(scale = 1.2, alpha = 0.8, color = "white") +
+  scale_fill_manual(values = rev(blue_palette)) +
+  scale_x_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100), labels = c("0.1", "1", "10", "100")) +
+  labs(
+    x = "passage time (days)",
+    y = "",
+    title = ""
+  ) +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    legend.position = "none"
+  )+ 
+  geom_vline(xintercept = 0.5/24, linetype = "dashed", size = 0.7)
+
+
+pt.right.density = ggplot(
+  pt.all %>% filter(basin == "right"),
+  aes(x = (hours)/24, y = factor(year), fill = factor(year))
+) +
+  geom_density_ridges(scale = 1.2, alpha = 0.8, color = "white") +
+  scale_fill_manual(values = (green_palette)) +
+  scale_x_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100), labels = c("0.1", "1", "10", "100")) +
+  labs(
+    x = "passage time (days)",
+    y = "",
+    title = ""
+  ) +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    legend.position = "none"
+  )+
+  geom_vline(xintercept = 0.5/24, linetype = "dashed", size = 0.7)
+
+
+
+# banner plot
+banner = ggplot() +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "#44729C", color = "black")) +
+  annotate("text", x = 0.5, y = 0.5, label = "Paul Lake (reference)",
+           color = "white", fontface = "bold", size = 5) +
+  xlim(0, 1) + ylim(0, 1)
+
+# your existing 2x2 grid
+pt.grid = ggarrange(lb.plot, rb.plot, pt.left.density, pt.right.density, nrow = 2, ncol = 2)
+
+# stack banner on top
+paul.pt = ggarrange(banner, pt.grid, nrow = 2, heights = c(0.08, 1))
+
+
+
+# combine Paul and Tuesday plots
+png("./figures/Supplemental figures/Figure S12 Full PT.png", res = 600, height = 100, width = 250, units = "mm") 
+
+ggarrange(tues.pt, paul.pt, nrow = 1, ncol = 2)
+
+dev.off()
+
+
+
+
+
+
+#### FIGURE S13 - passage times compared to nutrient loading for Tuesday #####
+
+t25 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2025 global 2026-06-18 THINNED.csv")
+t24 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2024 global 2026-06-18 THINNED.csv")
+t15 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2015 global 2026-06-18 THINNED.csv")
+t14 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2014 global 2026-06-18 THINNED.csv")
+t13 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2013 global 2026-06-18 THINNED.csv")
+
+pt.all = rbind(t25, t24, t15, t14, t13) %>% 
+  mutate(hours = minutes/60) 
+
+pt.days = pt.all %>% 
+  mutate(days = hours/24)
+
+pt.mean = pt.all %>% 
+  # group_by(year) %>% 
+  # mutate(total.time = sum(minutes)) %>% 
+  filter(minutes > 30) %>% 
+  ungroup() %>% 
+  group_by(year, basin) %>% 
+  summarize(mean.minutes = mean(hours, na.rm = TRUE),
+            median.minutes = median(minutes, na.rm = TRUE),
+            mean.hours = mean(hours, na.rm = TRUE)) %>% 
+  rename(Year = year) %>% 
+  mutate(mean.days = mean.hours/24) 
+
+# add in cumulative nutrient loading
+pt.mean = pt.mean %>% 
+  mutate(max.P = case_when(Year == 2013 ~ 219,
+                           Year == 2014 ~ 267,
+                           Year == 2015 ~ 267,
+                           Year == 2024 ~ 216,
+                           Year == 2025 ~ 270))
+
+ptandp = ggplot(pt.mean, aes(x = max.P, y = (mean.days), color = basin)) +
+  geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
+  geom_point(size = 2) +
+  geom_text_repel(aes(label = Year), color = "black", size = 3,
+                  show.legend = FALSE, max.overlaps = Inf,
+                  box.padding = 0.6, point.padding = 0.5,
+                  force = 2, min.segment.length = 0, segment.color = NA) +
+  facet_grid2(
+    ~ basin,
+    strip = strip_themed(
+      background_x = elem_list_rect(
+        fill = c("left" = "#755A42", "right" = "#5a6b3a"),
+        colour = NA
+      ),
+      text_x = elem_list_text(color = "white", size = 10)
+    ),
+    labeller = labeller(
+      basin = c(left = "low-pigment", right = "high-pigment")
+    )
+  ) +
+  scale_color_manual(values = c(left = "#755A42",
+                                right = "#5a6b3a")) +
+  labs(x = "cumulative P added (mg m-2 d-1)",
+       y = "mean passage time (days)") +
+  stat_poly_eq(aes(label = paste(..rr.label..)),
+               formula = y ~ x, parse = TRUE,
+               label.x = "left", label.y = "top", color = "black") +
+  theme_bw() +
+  scale_y_log10() +
+  theme(
+    axis.text  = element_text(size = 8),
+    axis.title = element_text(size = 10),
+    legend.position = "none"
+  )
+
+# Tuesday banner
+banner = ggplot() +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "white", color = "white")) +
+  annotate("text", x = 0.5, y = 0.5, label = "Tuesday Lake (experimental)",
+           color = "black", size = 3.5) +
+  xlim(0, 1) + ylim(0, 1)
+
+png("./figures/Supplemental figures/Figure S13 PT and P added.png", res = 600, height = 80, width = 140, units = "mm") 
+
+ggarrange(banner, ptandp, nrow = 2, heights = c(0.08, 1))
+
+dev.off()
+
+   
+                                                                                                                                    
 
 
 #### FIGURE S14 - passage times compared to mean zooplankton biomass #####
 
+t25 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2025 global 2026-06-18 THINNED.csv")
+t24 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2024 global 2026-06-18 THINNED.csv")
+t15 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2015 global 2026-06-18 THINNED.csv")
+t14 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2014 global 2026-06-18 THINNED.csv")
+t13 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2013 global 2026-06-18 THINNED.csv")
+
+pt.tues = rbind(t25, t24, t15, t14, t13) %>% 
+  mutate(hours = minutes/60) %>% 
+  mutate(lake = "T")
+
+
+t25 = read.csv("./results/passage times/Paul ARIMA-corrected 2025 global 2026-06-18 THINNED.csv")
+t24 = read.csv("./results/passage times/Paul ARIMA-corrected 2024 global 2026-06-18 THINNED.csv")
+t15 = read.csv("./results/passage times/Paul ARIMA-corrected 2015 global 2026-06-18 THINNED.csv")
+t14 = read.csv("./results/passage times/Paul ARIMA-corrected 2014 global 2026-06-18 THINNED.csv")
+t13 = read.csv("./results/passage times/Paul ARIMA-corrected 2013 global 2026-06-18 THINNED.csv")
+
+pt.paul = rbind(t25, t24, t15, t14, t13) %>% 
+  mutate(hours = minutes/60) %>% 
+  mutate(lake = "L")
+
+pt.all =rbind(pt.tues, pt.paul)
+
+pt.mean =  pt.all %>% 
+  filter(minutes > 30) %>% 
+  ungroup() %>% 
+  group_by(lake, year, basin) %>% 
+  summarize(mean.minutes = mean(hours, na.rm = TRUE),
+            median.minutes = median(minutes, na.rm = TRUE),
+            mean.hours = mean(hours, na.rm = TRUE)) %>% 
+  mutate(mean.days = mean.hours/24) 
+
+
+zoops = read.csv("./data/formatted data/cascade_zooplankton_v07_DTH.csv")
+
+# sum by year and doy
+sum.zoops = zoops %>% 
+  group_by(year4, lakeid, daynum) %>% 
+  summarize(total.biomass = sum(biomass, na.rm = TRUE)) %>% 
+  filter(lakeid %in% c("L", "T"))
+
+mean.biomass = sum.zoops %>% 
+  filter(year4 %in% c(2013:2015, 2024, 2025)) %>% 
+  group_by(year4, lakeid) %>% 
+  summarize(mean.biomass = median(total.biomass, na.rm = TRUE),
+            sd.biomass = sd(total.biomass, na.rm = TRUE)) %>% 
+  rename(year = year4, lake = lakeid)
+
+pt.mean = pt.mean %>% 
+  left_join(mean.biomass, by = c("lake", "year"))
+
+
+pt.mean = pt.mean %>%
+  mutate(lake = factor(lake, levels = c("T", "L")),
+         lake_basin = paste(lake, basin, sep = "_"))
 
 
 
+lake_basin_colors = c(
+  "T_left"  = "#755A42",  # Tuesday low-pigment: brown
+  "T_right" = "#5a6b3a",  # Tuesday high-pigment: green
+  "L_left"  = "#44729C",  # Paul low-pigment: blue
+  "L_right" = "#b4c187"   # Paul high-pigment: light green
+)
 
 
 
+png("./figures/Supplemental figures/Figure S14 PT and zoops.png", res = 600, height = 130, width = 130, units = "mm") 
 
+ggplot(pt.mean, aes(x = mean.biomass, y = mean.days, color = lake_basin)) +
+  geom_point(size = 3) +
+  geom_smooth(aes(group = lake_basin), method = "lm", se = FALSE, linetype = "dashed") +
+  stat_poly_eq(
+    aes(label = paste(..rr.label..), group = lake_basin),
+    formula = y ~ x, parse = TRUE,
+    label.x = "left", label.y = "top", 
+    color = "black", size = 3
+  ) +
+  scale_color_manual(values = lake_basin_colors) +
+  facet_grid2(
+    lake ~ basin,
+    strip = strip_themed(
+      background_x = elem_list_rect(
+        fill = "white",
+        colour = NA
+      ),
+      text_x = elem_list_text(color = "black", size = 12),
+      background_y = elem_list_rect(
+        fill = c("T" = "#755A42", "L" = "#44729C"),
+        colour = NA
+      ),
+      text_y = elem_list_text(color = "white", size = 12)
+    ),
+    labeller = labeller(
+      basin = c(left = "low-pigment", right = "high-pigment"),
+      lake = c(T = "Tuesday (experimental)", L = "Paul (reference)")
+    )
+  ) +
+  labs(x = expression("mean zooplankton biomass (g/m"^2*")"), y = "mean passage time (days)") +
+  theme_bw() +
+  theme(
+    axis.text  = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    legend.position = "none"
+  )+  geom_text_repel(aes(label = year), color = "black", size = 2.5,
+                      show.legend = FALSE, max.overlaps = Inf,
+                      box.padding = 0.6, point.padding = 0.5,
+                      force = 2, min.segment.length = 0, segment.color = NA) 
+
+
+dev.off()
 
 #=========================================================================================================================#
 #### FIGURE S15- plotting the bootstrapped DDJ and EP #####
@@ -1076,3 +1581,434 @@ dev.off()
 
 
 #### FIGURE S16 - Bootstrapped passage times compared to kNC ####
+
+tues.pt.boot = get(load('./results/bootstrapped results/Passage_times_boot_Tuesday 1000.Rdata')) %>% 
+  mutate(lake = "T")
+
+paul.pt.boot = get(load('./results/bootstrapped results/Passage_times_boot_Paul 1000.Rdata')) %>% 
+  mutate(lake = "L")
+
+all.pt.boot = rbind(tues.pt.boot, paul.pt.boot)
+
+# convert to days
+all.pt.boot = all.pt.boot %>% 
+  mutate(mean.left.days = mean.left/(24*60), mean.right.days = mean.right/(60*24))
+
+
+
+
+
+# add in mean kNC
+data = read.csv("./data/formatted data/simulation model inputs 2013-2015 2024 2025 v4.csv")
+
+data.mean = data %>% 
+  mutate(kNC = kPAR - 0.0177*Manual_Chl) %>% 
+  filter((Lake == "T" | Lake == "L") & kNC > 0) %>% 
+  group_by(Year, Lake) %>% 
+  summarize(mean.kNC = mean(kNC, na.rm = TRUE),
+            median.kNC = median(kNC, na.rm = TRUE),
+            total.nuts = max(cumulative.load, na.rm = TRUE),
+            mean.kPAR = mean(kPAR, na.rm = TRUE))  %>% 
+  rename(year = Year, lake = Lake)
+
+
+all.pt.boot = all.pt.boot %>% 
+  left_join(data.mean, by = c("year", "lake"))
+
+mean.pass.boot = all.pt.boot %>% 
+  group_by(year, lake) %>% 
+  summarize(mean.left = mean(mean.left, na.rm = TRUE), mean.right = mean(mean.right, na.rm = TRUE)) %>% 
+  left_join(data.mean, by = c("year", "lake"))
+
+
+
+
+#### make figures using bootstrapped passage times ####
+
+
+green_palette <- c("#CBD4AC", "#b4c187", "#80914b", "#5a6b3a", "#496231")
+brown_palette <- c("#CFB491", "#9c7744", "#8c5c2b", "#533113", "#361c07")
+
+
+
+
+mean.pass.boot.long <- mean.pass.boot %>%
+  pivot_longer(
+    cols = c(mean.left, mean.right),
+    names_to = "basin",
+    values_to = "mean.minutes") %>%
+  mutate(
+    basin = recode(basin,
+                   mean.left = "left",
+                   mean.right = "right"))
+
+
+
+rb.plot.t = ggplot(all.pt.boot %>% filter(lake == "T"), aes(x = as.factor(year), y = (mean.right)/(24*60), fill = factor(year))) +
+  geom_boxplot(alpha = 0.8)+
+  labs(y = "", x = "Year", title = "high-pigment") +
+  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+  scale_fill_manual(values = (green_palette))+
+  theme_classic()+
+  scale_y_log10(limits = c(0.1, 30))+
+  theme(legend.position = "none")+
+  theme(
+    axis.text.y  = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    strip.text = element_text(size = 12),
+    legend.position = "none",
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#5a6b3a",
+      color = "white",
+      face = "bold",
+      size = 13,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(5, 5, 5, 5),
+      margin = margin(b = 8)
+    ),
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1)
+  ) +
+  theme(plot.margin = margin(l = 0, r = 0, t = 0, b = 0))
+
+
+lb.plot.t = ggplot(all.pt.boot %>% filter(lake == "T"), aes(x = as.factor(year), y = (mean.left)/(24*60), fill = factor(year))) +
+  geom_boxplot(alpha = 0.8)+
+  labs(y = "mean passage time (days)", x = "Year", title = "low-pigment") +
+  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+  scale_fill_manual(values = (brown_palette))+
+  theme_classic()+
+  scale_y_log10(limits = c(0.1, 30))+
+  theme(legend.position = "none")+
+  theme(
+    axis.text.y  = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    strip.text = element_text(size = 12),
+    legend.position = "none",
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#755A42",
+      color = "white",
+      face = "bold",
+      size = 13,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(5, 5, 5, 5),
+      margin = margin(b = 8)
+    ),
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1)
+  ) +
+  theme(plot.margin = margin(l = 0, r = 0, t = 0, b = 0))
+
+ggarrange(lb.plot.t, rb.plot.t)
+
+
+# banner plot
+# banner.t = ggplot() +
+#   theme_void() +
+#   theme(plot.background = element_rect(fill = "#755A42", color = "black")) +
+#   annotate("text", x = 0.5, y = 0.5, label = "Tuesday (experimental)",
+#            color = "white", fontface = "bold", size = 5) +
+#   xlim(0, 1) + ylim(0, 1)
+
+
+pt.grid.t = ggarrange(lb.plot.t, rb.plot.t, nrow = 1, ncol = 2)
+
+# stack banner on top
+# tues.pt.t = ggarrange(banner.t, pt.grid.t, nrow = 2, heights = c(0.08, 1))
+
+
+
+
+### Paul ###
+
+rb.plot.l = ggplot(all.pt.boot %>% filter(lake == "L"), aes(x = as.factor(year), y = (mean.right)/(24*60), fill = factor(year))) +
+  geom_boxplot(alpha = 0.8, fill = "#b4c187")+
+  labs(y = "", x = "Year", title = "high-pigment") +
+  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+  theme_classic()+
+  scale_y_log10(limits = c(0.1, 30))+
+  theme(legend.position = "none")+
+  theme(
+    axis.text.y  = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    strip.text = element_text(size = 12),
+    legend.position = "none",
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#b4c187",
+      color = "white",
+      face = "bold",
+      size = 13,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(5, 5, 5, 5),
+      margin = margin(b = 8)
+    ),
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1)
+  ) +
+  theme(plot.margin = margin(l = 0, r = 0, t = 0, b = 0))
+
+
+lb.plot.l = ggplot(all.pt.boot %>% filter(lake == "L"), aes(x = as.factor(year), y = (mean.left)/(24*60), fill = factor(year))) +
+  geom_boxplot(alpha = 0.8)+
+  labs(y = "", x = "Year", title = "low-pigment") +
+  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+  scale_fill_manual(values = blue_palette)+
+  theme_classic()+
+  scale_y_log10(limits = c(0.1, 30))+
+  theme(legend.position = "none")+
+  theme(
+    axis.text.y  = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    strip.text = element_text(size = 12),
+    legend.position = "none",
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#44729C",
+      color = "white",
+      face = "bold",
+      size = 13,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(5, 5, 5, 5),
+      margin = margin(b = 8)
+    ),
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1)
+  ) +
+  theme(plot.margin = margin(l = 0, r = 0, t = 0, b = 0))
+
+
+ggarrange(lb.plot.l, rb.plot.l)
+
+
+# banner plot
+banner = ggplot() +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "#44729C", color = "black")) +
+  annotate("text", x = 0.5, y = 0.5, label = "Paul (reference)",
+           color = "white", fontface = "bold", size = 5) +
+  xlim(0, 1) + ylim(0, 1)
+
+pt.grid.l = ggarrange(lb.plot.l, rb.plot.l, nrow = 1, ncol = 2)
+
+# stack banner on top
+paul.pt.l = ggarrange(banner, pt.grid.l, nrow = 2, heights = c(0.08, 1))
+
+
+#### compare to kNC ####
+
+
+ mean.pass.boot.long <- mean.pass.boot %>%
+  pivot_longer(
+    cols = c(mean.left, mean.right),
+    names_to = "basin",
+    values_to = "mean.minutes") %>%
+  mutate(
+    basin = recode(basin,
+                   mean.left = "left",
+                   mean.right = "right"))
+
+ pos.df <- mean.pass.boot.long %>%
+   filter(lake == "L") %>%
+   group_by(basin) %>%
+   summarise(
+     x = max(mean.kNC, na.rm = TRUE) * 0.95,
+     y = 15
+   )
+
+ 
+ 
+ 
+ l.knc.boot = ggplot(mean.pass.boot.long %>% filter(lake == "L"), aes(x = mean.kNC, y = (mean.minutes/(24*60)), fill = basin, color = basin)) +
+   stat_poly_eq(
+     data = subset(mean.pass.boot.long, basin == "left" & lake == "L"),
+     aes(
+       x = mean.kNC,
+       y = log10(mean.minutes),
+       label = after_stat(rr.label)
+     ),
+     formula = y ~ x,
+     parse = TRUE,
+     geom = "text",
+     label.x = pos.df$x[pos.df$basin == "left"],
+     label.y = pos.df$y[pos.df$basin == "left"],
+     color = "black",
+     size = 4
+   )+
+ stat_poly_eq(
+   data = subset(mean.pass.boot.long, basin == "right" & lake == "L"),
+   aes(
+     x = mean.kNC,
+     y = log10(mean.minutes),
+     label = after_stat(rr.label)
+   ),
+   formula = y ~ x,
+   parse = TRUE,
+   geom = "text",
+   label.x = pos.df$x[pos.df$basin == "right"],
+   label.y = pos.df$y[pos.df$basin == "right"],
+   color = "black",
+   size = 4
+  )+
+  geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
+  geom_point(size = 2, pch = 21, color = "black") +
+  geom_text_repel(aes(label = year), color = "black", size = 2.7,
+                  show.legend = FALSE, max.overlaps = Inf,
+                  box.padding = 0.2, point.padding = 1.5,
+                  force = 2, min.segment.length = 0, segment.color = NA) +
+  # nudge_y = ifelse(pt.mean$Year == 2025 & pt.mean$basin == "right", -0.1, 0)) +
+  facet_wrap(~basin,
+             labeller = as_labeller(c(left = "low-pigment",
+                                      right = "high-pigment"))) +
+  scale_fill_manual(values = c(left =   "#44729C",
+                               right = "#b4c187")) +
+  
+  scale_color_manual(values = c(left =   "#44729C",
+                                right = "#b4c187")) +
+  labs(x = "non-chl light attenuation (kNC)",
+       y = "") +
+  theme_bw() +
+  # scale_y_log10(
+  #   limits = c(0.01, 100),
+  #   breaks = c(0.01, 0.1, 1, 10, 100),
+  #   labels = c("0.01", "0.1", "1", "10", "100"))+
+  theme(legend.position = "none",
+        strip.text = element_text(size = 12))+
+  theme(
+    axis.text  = element_text(size = 10),
+    axis.title = element_text(size = 12),
+    strip.text = element_blank(),
+    legend.position = "none",
+    panel.grid = element_blank()
+  ) +
+  theme(plot.margin = margin(l = 0.2))
+
+
+
+
+ 
+ 
+ 
+ 
+ t.knc.boot = ggplot(mean.pass.boot.long %>% filter(lake == "T"), aes(x = mean.kNC, y = (mean.minutes/(24*60)), fill = basin, color = basin)) +
+   stat_poly_eq(
+     data = subset(mean.pass.boot.long, basin == "left" & lake == "T"),
+     aes(
+       x = mean.kNC,
+       y = log10(mean.minutes),
+       label = after_stat(rr.label)
+     ),
+     formula = y ~ x,
+     parse = TRUE,
+     geom = "text",
+     label.x = pos.df$x[pos.df$basin == "left"],
+     label.y = pos.df$y[pos.df$basin == "left"],
+     color = "black",
+     size = 4
+   )+
+   stat_poly_eq(
+     data = subset(mean.pass.boot.long, basin == "right" & lake == "T"),
+     aes(
+       x = mean.kNC,
+       y = log10(mean.minutes),
+       label = after_stat(rr.label)
+     ),
+     formula = y ~ x,
+     parse = TRUE,
+     geom = "text",
+     label.x = pos.df$x[pos.df$basin == "right"],
+     label.y = pos.df$y[pos.df$basin == "right"],
+     color = "black",
+     size = 4
+   )+
+   geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
+   geom_point(size = 2, pch = 21, color = "black") +
+   geom_text_repel(aes(label = year), color = "black", size = 2.7,
+                   show.legend = FALSE, max.overlaps = Inf,
+                   box.padding = 0.2, point.padding = 1.5,
+                   force = 2, min.segment.length = 0, segment.color = NA) +
+   # nudge_y = ifelse(pt.mean$Year == 2025 & pt.mean$basin == "right", -0.1, 0)) +
+   facet_wrap(~basin,
+              labeller = as_labeller(c(left = "low-pigment",
+                                       right = "high-pigment"))) +
+   scale_fill_manual(values = c(left =   "#755A42",
+                                right = "#5a6b3a")) +
+   
+   scale_color_manual(values = c(left =   "#755A42",
+                                 right = "#5a6b3a")) +
+   labs(x = "non-chl light attenuation (kNC)",
+        y = "mean passage time (days)") +
+   theme_bw() +
+   # scale_y_log10(
+   #   limits = c(0.01, 100),
+   #   breaks = c(0.01, 0.1, 1, 10, 100),
+   #   labels = c("0.01", "0.1", "1", "10", "100"))+
+   theme(legend.position = "none",
+         strip.text = element_text(size = 12))+
+   theme(
+     axis.text  = element_text(size = 10),
+     axis.title = element_text(size = 12),
+     strip.text = element_blank(),
+     legend.position = "none",
+     panel.grid = element_blank()
+   ) +
+   theme(plot.margin = margin(l = 0.2))
+ 
+ 
+ 
+ 
+ 
+# add titles
+ tues.pt.t <- pt.grid.t +
+   plot_annotation(
+     title = "Tuesday (experimental)",
+     theme = theme(
+       plot.title = ggtext::element_textbox_simple(
+         fill = "#755A42",
+         color = "white",
+         face = "bold",
+         size = 13,
+         halign = 0.5,
+         box.color = "black",
+         linewidth = 0.5,
+         padding = margin(5,5,5,10),
+         margin = margin(b = 8)
+       )
+     )
+   )
+ 
+ 
+ 
+ paul.pt.l <- pt.grid.l +
+   plot_annotation(
+     title = "Paul (reference)",
+     theme = theme(
+       plot.title = ggtext::element_textbox_simple(
+         fill = "#44729C",
+         color = "white",
+         face = "bold",
+         size = 13,
+         halign = 0.5,
+         box.color = "black",
+         linewidth = 0.5,
+         padding = margin(5,5,5,10),
+         margin = margin(b = 8)
+       )
+     )
+   )
+ 
+ 
+ png("./figures/Supplemental figures/Figure S16 Bootstrapped PT and kNC.png", res = 600, height = 170, width = 250, units = "mm") 
+ 
+ 
+ ggarrange(tues.pt.t, paul.pt.l, t.knc.boot, l.knc.boot, nrow = 2, ncol = 2)
+
+ dev.off()
+
+

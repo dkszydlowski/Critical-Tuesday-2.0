@@ -378,11 +378,17 @@ pos.df <- pt.mean %>%
   )
 
 
+
+
 compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin, color = basin)) +
+  scale_y_log10(
+    limits = c(0.01, 100),
+    breaks = c(0.01, 0.1, 1, 10, 100),
+    labels = c("0.01", "0.1", "1", "10", "100"))+
   stat_poly_eq(
     data = subset(pt.mean, basin == "left"),
     aes(label = paste(..rr.label..)),
-    formula = y ~ x,
+    formula = (y) ~ x,
     parse = TRUE,
     geom = "text",
     label.x = pos.df$x[pos.df$basin == "left"],
@@ -396,7 +402,7 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
   stat_poly_eq(
     data = subset(pt.mean, basin == "right"),
     aes(label = paste(..rr.label..)),
-    formula = y ~ x,
+    formula = (y) ~ x,
     parse = TRUE,
     geom = "text",
     label.x = pos.df$x[pos.df$basin == "right"],
@@ -425,10 +431,6 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
   labs(x = "non-chl light attenuation (kNC)",
        y = "") +
   theme_bw() +
-  scale_y_log10(
-    limits = c(0.01, 100),
-    breaks = c(0.01, 0.1, 1, 10, 100),
-    labels = c("0.01", "0.1", "1", "10", "100"))+
   theme(legend.position = "none",
         strip.text = element_text(size = 12))+
   theme(
