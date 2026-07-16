@@ -343,7 +343,6 @@ ggplot(predicted25, aes(x = doy, y = 10^as.numeric(predicted)))+
 ###### CHECK MODEL RESIDUALS FOR EACH YEAR #######
 par(mfrow = c(2, 3))  # 2 rows, 3 columns
 
-
 qqnorm(residuals(aa13), main = "2013 QQ plot")
 qqline(residuals(aa13))
 
@@ -359,15 +358,22 @@ qqline(residuals(aa24))
 qqnorm(residuals(aa25), main = "2025 QQ plot")
 qqline(residuals(aa25))
 
+# save the model fits for the supplemental
+predicted13$predicted <- as.numeric(predicted13$predicted)
+predicted14$predicted <- as.numeric(predicted14$predicted)
+predicted15$predicted <- as.numeric(predicted15$predicted)
+predicted24$predicted <- as.numeric(predicted24$predicted)
+predicted25$predicted <- as.numeric(predicted25$predicted)
 
-
-
-
+tues.predicted = rbind(predicted13, predicted14, predicted15, predicted24, predicted25) %>% 
+  mutate(lake = "T")
+ 
+write.csv(tues.predicted, "./results/ARIMA model fits/Tuesday ARIMA fits.csv", row.names = FALSE)
 
 #========================================================================================================================================#
 ##### PREDICT MANUAL CHL FROM HIGH-FREQUENCY SONDE DATA #####
 # After fitting aa13, aa14, aa15, aa24, aa25 above, use each model to 
-# predict manual chl across the full HF time series.
+# testung predicting manual chl across the full HF time series by directly plugging in to the model
 #========================================================================================================================================#
 
 predict_manual_from_hf <- function(model, calibration_data, hf_data, yr) {
@@ -445,7 +451,7 @@ ggplot(hf_predicted_with_manual %>% filter(Year == 2015), aes(x = DoY)) +
         strip.text = element_text(size = 12))
 
 
-
+### Directly plugging in to the ARIMA model does not work, likely due to differences in timescales
 
 
 
@@ -478,7 +484,7 @@ ggplot(all.predicted, aes(x = doy, y = 10^predicted, color = as.factor(year)))+
 
 
 
-###### predict HF data as the difference needed to adjust the daily mean ######
+###### Instead, predict HF data as the difference needed to adjust the daily mean ######
 
 
 datall = allchl.ct
@@ -499,50 +505,6 @@ correction.data = all.predicted %>%
 #chl.sonde = read.csv("./data/formatted data/HF data/Sonde correction/Predicted Tuesday HYLB on Manual Scale log-trans NOISY.csv")
 
 all.hylb = read.csv("./data/formatted data/HF data/Tuesday HYLB 2013-2015 2024 2025 log-trans NEW MARSS NOISE 2026-02-16.csv")
-
-hf15 = all.hylb %>% filter(Year == 2015)
-
-hf15 <- all.hylb %>%
-  filter(Year == 2015 & DoY > 150)
-
-hf.X <- log10(hf15$Chl_HYLB + 2)
-hf.X = hf.X - mean(hf.X)
-
-newxreg <- matrix(hf.X, ncol = 1)
-
-hf.pred <- predict(aa15, newxreg = newxreg)
-
-
-hf_out <- hf15 %>%
-  mutate(
-    pred_manual_log = hf.pred$pred + mean(dat15$Mchl),
-    pred_manual = 10^pred_manual_log,
-    DoY = hf15$DoY
-  )
-
-
-
-ggplot(hf_out, aes(x = DoY, y = pred_manual))+
-  geom_line()+
-  geom_point(
-    data = datall %>% filter(year == 2015),
-    aes(x = doy, y = Manual_Chl),
-    color = "red",
-    size = 2
-  )
-
-newxreg <- matrix(hf.X, ncol = ncol(aa15$xreg))
-
-pred <- predict(aa15, newxreg = newxreg)
-
-
-
-
-hf.X <- log10(hf15$Chl_HYLB + 2) - mean(dat15$Hchl)
-
-newxreg <- matrix(hf.X, ncol = 1)
-
-pred <- predict(aa15, newxreg = newxreg)
 
 
 
@@ -633,6 +595,9 @@ final.T = final.T %>%
 
 ### save the Tuesday dataframe
 write.csv(final.T, "./data/formatted data/HF data/Predicted Tuesday HYLB on Manual Scale log-trans NOISY ARIMA.csv", row.names = FALSE)
+
+# save the hydrolab combined with manual for supplemental figure plotting
+write.csv(all.hylb, "./results/ARIMA model fits/Tuesday HF and manual corrected for comparison.csv", row.names= FALSE)
 
 #========================================================================================================================================#
 ###### PAUL #######
@@ -980,7 +945,11 @@ ggplot(all.predicted, aes(x = doy, y = 10^predicted, color = as.factor(year)))+
   geom_line()+
   theme_classic()
 
+# save the model fits for the supplemental
+all.predicted = all.predicted %>% 
+  mutate(lake = "L")
 
+write.csv(all.predicted, "./results/ARIMA model fits/Paul ARIMA fits.csv", row.names = FALSE)
 
 ###### predict HF data as the difference needed to adjust the daily mean ######
 
@@ -1023,6 +992,8 @@ ggplot(all.hylb, aes(x = DoY, y = corrected.sonde, color = as.factor(year)))+
   geom_point(data = all.hylb, aes(x = DoY, y = Mchl), color = "black")+
   theme_bw()+
   labs(x = "DOY", y = "log10(Chlorophyll)")
+
+
 
 # get daily mean of the corrected data
 mean.corrected = all.hylb %>% 
@@ -1091,4 +1062,7 @@ final.L = final.L %>%
 
 ### save the Tuesday dataframe
 write.csv(final.L, "./data/formatted data/HF data/Predicted Paul HYLB on Manual Scale log-trans NOISY ARIMA.csv", row.names = FALSE)
+
+write.csv(all.hylb, "./results/ARIMA model fits/Paul HF and manual corrected for comparison.csv", row.names= FALSE)
+
 

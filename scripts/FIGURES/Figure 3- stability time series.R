@@ -92,7 +92,7 @@ ggplot(all.ct.ts, aes(x = doy, y = eigvals, color = Lake))+
     breaks = c(121, 152, 182, 213),
     labels = c("May", "Jun", "Jul", "Aug")
   )+
-  labs(x = "Date", y = "Time-varying AR coefficient")+
+  labs(x = "Date", y = "time-varying AR coefficient")+
   theme(legend.position = "none")
   
 

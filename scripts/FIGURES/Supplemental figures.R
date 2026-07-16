@@ -2,6 +2,209 @@
 
 library(tidyverse)
 library(ggpubr)
+library(ggh4x)
+library(ggtext)
+
+
+
+
+
+
+#### plot kNC boxplots for both Paul and Tuesday ####
+
+data = read.csv("./data/formatted data/simulation model inputs 2013-2015 2024 2025 v4.csv") %>% 
+  filter(Lake %in% c("L", "T")) %>% 
+  mutate(kNC = kPAR - 0.0177*Manual_Chl)
+
+
+thermo.comp = ggplot(data, aes(x = as.factor(Year), y = Ztherm, fill = Lake))+
+  geom_boxplot()+
+  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
+                    labels = c("L" = "Paul", "T" = "Tuesday"))+
+  theme_bw()+
+  labs(x = "", y = "Thermocline depth (m)")+
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12))
+
+DOC.comp = ggplot(data, aes(x = as.factor(Year), y = DOC, fill = Lake))+
+  geom_boxplot()+
+  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
+                    labels = c("L" = "Paul", "T" = "Tuesday"))+
+  theme_bw()+
+  labs(x = "", y = "DOC (mg/L)")+
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12))
+
+
+kNC.comp = ggplot(data %>% filter(kNC > 0), aes(x = as.factor(Year), y = kNC, fill = Lake))+
+  geom_boxplot()+
+  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
+                    labels = c("L" = "Paul", "T" = "Tuesday"))+
+  theme_bw()+
+  labs(x = "", y = "kNC")+
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12))+
+  ylim(0, 2.5)
+
+
+Chl.comp = ggplot(data %>% filter(kNC > 0), aes(x = as.factor(Year), y = Manual_Chl, fill = Lake))+
+  geom_boxplot()+
+  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
+                    labels = c("L" = "Paul", "T" = "Tuesday"))+
+  theme_bw()+
+  labs(x = "", y = "Manual Chlorophyll (μg/L)")+
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12))
+
+
+
+PAR.comp = ggplot(data %>% filter(kNC > 0), aes(x = as.factor(Year), y = kPAR, fill = Lake))+
+  geom_boxplot()+
+  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
+                    labels = c("L" = "Paul", "T" = "Tuesday"))+
+  theme_bw()+
+  labs(x = "", y = "kPAR")+
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12))+
+  ylim(0, 2.5)
+
+ggarrange(DOC.comp, thermo.comp, PAR.comp, kNC.comp, common.legend = TRUE, nrow = 2, ncol = 2)
+
+
+
+
+
+
+
+
+
+
+
+
+#### ARIMA fitted vs observed #####
+t.arima = read.csv("./results/ARIMA model fits/Tuesday ARIMA fits.csv") %>% 
+  mutate(lake = "T")
+L.arima = read.csv("./results/ARIMA model fits/Paul ARIMA fits.csv")
+
+all.arima = rbind(t.arima, L.arima) %>% 
+  mutate(lake = factor(lake, levels = c("T", "L")))
+
+png("./figures/Supplemental figures/Figure S4 ARIMA fits.png", res = 600, height = 100, width = 173, units = "mm") 
+
+
+ggplot(all.arima, aes(x = original, y = predicted, color = lake)) +
+  geom_point(alpha = 0.5, size = 0.9) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  stat_poly_eq(
+    formula = y ~ x,
+    aes(label = ..rr.label..),
+    parse = TRUE,
+    size = 4,
+    label.x = 0.05,  
+    label.y = 0.95,
+    color = "black") +
+  theme_bw() +
+  scale_color_manual(values = c("L" = "#44729C", "T" = "#755A42")) +
+  facet_grid2(
+    lake ~ year,
+    scales = "free",
+    strip = strip_themed(
+      
+      # YEARS (top) — completely clean
+      background_x = elem_list_rect(
+        fill = "transparent",
+        colour = NA
+      ),
+      text_x = elem_list_text(size = 10),
+      
+      # LAKES (left) — colored
+      background_y = elem_list_rect(
+        fill = c(
+          "T" = "#755A42",
+          "L" = "#44729C"
+        ),
+        colour = NA
+      ),
+      text_y = elem_list_text(
+        color = "white",
+        size = 10
+      )
+    ),
+    
+    labeller = labeller(
+      lake = c(
+        "T" = "Tuesday (experimental)",
+        "L" = "Paul (reference)"
+      )
+    )
+  ) +
+  labs(x = "log10(observed manual chlorophyll)", y = "log10(ARIMA-predicted manual chlorophyll)") +
+  theme(legend.position = "none")
+
+dev.off()
+
+
+
+##### ARIMA time series manual and corrected sonde #####
+l.corrected = read.csv("./results/ARIMA model fits/Paul HF and manual corrected for comparison.csv") %>% 
+  mutate(lake = "L")
+
+t.corrected = read.csv("./results/ARIMA model fits/Tuesday HF and manual corrected for comparison.csv") %>% 
+  mutate(lake = "T")
+
+all.corrected = rbind(l.corrected, t.corrected)
+
+all.corrected = all.corrected %>% 
+  mutate(lake = factor(lake, levels = c("T", "L")))
+
+png("./figures/Supplemental figures/Figure S5 ARIMA manual and corrected.png", res = 600, height = 100, width = 173, units = "mm") 
+
+ggplot(all.corrected, aes(x = DoY, y = corrected.sonde, color = lake)) +
+  geom_line(size = 0.3) +
+  geom_point(data = all.corrected, aes(x = DoY, y = Mchl), color = "black", size = 0.7) +
+  theme_bw() +
+  scale_color_manual(values = c("L" = "#44729C", "T" = "#755A42")) +
+  facet_grid2(
+    lake ~ year,
+    strip = strip_themed(
+      
+      # YEARS (top) — completely clean
+      background_x = elem_list_rect(
+        fill = "transparent",
+        colour = NA
+      ),
+      text_x = elem_list_text(size = 10),
+      
+      # LAKES (left) — colored
+      background_y = elem_list_rect(
+        fill = c(
+          "T" = "#755A42",
+          "L" = "#44729C"
+        ),
+        colour = NA
+      ),
+      text_y = elem_list_text(
+        color = "white",
+        size = 10
+      )
+    ),
+    
+    labeller = labeller(
+      lake = c(
+        "T" = "Tuesday (experimental)",
+        "L" = "Paul (reference)"
+      )
+    )
+  ) +
+  scale_x_continuous(
+    breaks = c(152, 182, 213, 244),
+    labels = c("Jun", "Jul", "Aug", "Sep")
+  ) +
+  labs(x = "Date", y = "log10(Chlorophyll)") +
+  theme(legend.position = "none")
+
+dev.off()
+
 
 
 
@@ -19,20 +222,18 @@ ddj.result = ddj.result %>%
   mutate(estimate = recode(estimate,
                            D1 = "Drift",
                            D2 = "Diffusion (as s.d.)"))
+library(ggtext)
 
 DDJ.plot = ggplot(ddj.result, aes(x = avec, y = value, color = estimate))+
   geom_line()+
   theme_bw()+
   geom_line(size = 1.2) +
   geom_hline(yintercept = 0, linetype = "dotted") +
-  # theme_classic() +
-  labs(x = "", y = "Drift or Diffusion") +
+  labs(x = "", y = "Drift or Diffusion", title = "Tuesday Lake (experimental)") +
   scale_color_manual(values = c("Drift" = "blue4",
                                 "Diffusion (as s.d.)" = "red4")) +
   scale_linetype_manual(values = c("Drift" = "solid",
                                    "Diffusion" = "dashed")) +
-  #theme(legend.title = element_blank())+
-  
   theme(
     legend.title = element_blank(),
     axis.title = element_text(size = 14),
@@ -40,23 +241,104 @@ DDJ.plot = ggplot(ddj.result, aes(x = avec, y = value, color = estimate))+
     legend.text = element_text(size = 12),
     legend.position = c(0.05, 0.05),          # coordinates inside plot
     legend.justification = c(0, 0),           # aligns bottom-left of legend box to these coordinates
-  )
-
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#755A42",
+      color = "white",
+      face = "bold",
+      size = 13,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(5, 5, 5, 5),
+      margin = margin(b = 8)
+    )
+  )+
+  ylim(-4, 5)
 
 EP.all = data.frame(chl = EPout[[1]][2:100], EP = EPout[[2]]) # EP only goes from 2:100 of chl
 
 EP.plot = ggplot(EP.all, aes(x = chl, y = EP))+
   geom_line(size = 1.2)+
-  theme_classic()+
+  theme_bw()+
   theme(axis.title = element_text(size = 14),
         axis.text = element_text(size = 12),
         legend.text = element_text(size = 12))+
+  ylim(0, 2.5)+
   labs(x = "Chlorophyll, standardized level", y = "Effective Potential")
 
 
 ggarrange(DDJ.plot, EP.plot, nrow = 2, ncol = 1, align = "v")
 
 
+load('./results/DDJ results Paul ARIMA-corrected data.Rdata')
+
+
+ddj.result.L = data.frame(D1, D2, avec)
+
+
+# take the sqrt of D2 because it has units of chl^2
+ddj.result.L = ddj.result.L %>% 
+  mutate(D2 = sqrt(2*D2)) %>% 
+  pivot_longer(cols = c(D1, D2), names_to = "estimate") %>%
+  mutate(estimate = recode(estimate,
+                           D1 = "Drift",
+                           D2 = "Diffusion (as s.d.)"))
+
+
+
+
+DDJ.plot.L = ggplot(ddj.result.L, aes(x = avec, y = value, color = estimate))+
+  geom_line()+
+  theme_bw()+
+  geom_line(size = 1.2) +
+  geom_hline(yintercept = 0, linetype = "dotted") +
+  labs(x = "", y = "", title = "Paul Lake (reference)") +
+  scale_color_manual(values = c("Drift" = "blue4",
+                                "Diffusion (as s.d.)" = "red4")) +
+  scale_linetype_manual(values = c("Drift" = "solid",
+                                   "Diffusion" = "dashed")) +
+  theme(
+    legend.title = element_blank(),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    legend.position = c(0.05, 0.05),
+    legend.justification = c(0, 0),
+    plot.title = ggtext::element_textbox_simple(
+      fill = "#44729C",
+      color = "white",
+      face = "bold",
+      size = 13,
+      halign = 0.5,
+      linetype = 1,
+      box.color = "black",
+      linewidth = 0.5,
+      padding = margin(5, 5, 5, 5),
+      margin = margin(b = 8)
+    )
+  )+
+  
+  ylim(-4, 5)
+
+EP.all.L = data.frame(chl = EPout[[1]][2:100], EP = EPout[[2]]) # EP only goes from 2:100 of chl
+
+EP.plot.L = ggplot(EP.all.L, aes(x = chl, y = EP))+
+  geom_line(size = 1.2)+
+  theme_bw()+
+  theme(axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        legend.text = element_text(size = 12))+
+  labs(x = "Chlorophyll, standardized level", y = "")+
+  ylim(0, 2.5)
+
+png("./figures/Supplemental figures/Figure S11 DDJ models and EP.png", res = 600, height = 200, width = 200, units = "mm") 
+
+
+ggarrange(nrow = 2, ncol = 2, DDJ.plot, DDJ.plot.L, EP.plot, EP.plot.L)
+
+
+dev.off()
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------#
@@ -219,8 +501,17 @@ ggplot(all.dlm %>% filter(year == 2025), aes(x = Tstep)) +
 
 
 
+
+
+#=========================================================================================================================#
 #### plotting the bootstrapped results #####
+
+## TUESDAY ##
+
 load('./results/bootstrapped results/DDJ_boot_Tuesday 1000.Rdata')
+
+# load in the epfeq function
+source('./scripts/Step 3- Fit DDJ models/0_EPFunction+EQ.R')
 
 
 # Average across bootstrap replicates
@@ -255,33 +546,6 @@ drift_diff_avg =
                            D1 = "Drift",
                            D2 = "Diffusion (as s.d.)"))
 
-DDJboot = ggplot(drift_diff_avg,
-                 aes(x = avec, y = value, color = estimate, linetype = estimate)) +
-  geom_ribbon(data = avg_df,
-              aes(x = avec, ymin = D1_low, ymax = D1_high),
-              inherit.aes = FALSE,
-              fill = "grey30", alpha = 0.2) +
-  geom_ribbon(data = avg_df,
-              aes(x = avec, ymin = D2_low, ymax = D2_high),
-              inherit.aes = FALSE,
-              fill = "grey30", alpha = 0.2) +
-  geom_line(size = 1.2) +
-  geom_hline(yintercept = 0, linetype = "dotted") +
-  # theme_classic() +
-  labs(x = "Chlorophyll", y = "Drift or Diffusion") +
-  scale_color_manual(values = c("Drift" = "blue4",
-                                "Diffusion (as s.d.)" = "red4")) +
-  scale_linetype_manual(values = c("Drift" = "solid",
-                                   "Diffusion (as s.d.)" = "dashed")) +
-  #theme(legend.title = element_blank())+
-  
-  theme(axis.title = element_text(size = 14),
-        axis.text = element_text(size = 12),
-        legend.text = element_text(size = 12),
-        legend.position.inside = c(0.1, 0.1))
-
-
-
 
 
 DDJboot = ggplot(drift_diff_avg,
@@ -297,7 +561,7 @@ DDJboot = ggplot(drift_diff_avg,
   geom_line(size = 1.2) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   theme_classic() +
-  labs(x = "", y = "Drift or Diffusion") +
+  labs(x = "", y = "Drift or Diffusion", title = "Tuesday Lake (experimental)") +
   scale_color_manual(values = c("Drift" = "blue4",
                                 "Diffusion (as s.d.)" = "red4")) +
   scale_linetype_manual(values = c("Drift" = "solid",
@@ -307,9 +571,23 @@ DDJboot = ggplot(drift_diff_avg,
     axis.title = element_text(size = 14),
     axis.text = element_text(size = 12),
     legend.text = element_text(size = 12),
-    legend.position = c(0.05, 0.05),          # coordinates inside plot
+    legend.position = c(0.05, 0.95),          # coordinates inside plot
     legend.justification = c(0, 0),           # aligns bottom-left of legend box to these coordinates
-  )
+      plot.title = ggtext::element_textbox_simple(
+        fill = "#755A42",
+        color = "white",
+        face = "bold",
+        size = 13,
+        halign = 0.5,
+        linetype = 1,
+        box.color = "black",
+        linewidth = 0.5,
+        padding = margin(5, 5, 5, 5),
+        margin = margin(b = 8)
+      )
+)+
+ylim(-5, 12)+
+  xlim(-10, 10)
 
 #### plot the distribution of equilibrium points...not great.
 
@@ -387,7 +665,11 @@ EP.boot = ggplot(EP.all, aes(x = chl_mean, y = EP_mean))+
   theme(axis.title = element_text(size = 14),
         axis.text = element_text(size = 12),
         legend.text = element_text(size = 12))+
-  labs(x = "Chlorophyll, standardized level", y = "Mean Effective Potential")
+  labs(x = "Chlorophyll, standardized level", y = "Mean Effective Potential")+
+  ylim(0.3, 2)+
+  xlim(-10, 10)
+
+
 
 
 ggarrange(DDJboot, EP.boot, nrow = 2, ncol = 1, align = "v")
@@ -395,78 +677,179 @@ ggarrange(DDJboot, EP.boot, nrow = 2, ncol = 1, align = "v")
 
 
 
+### PAUL ####
 
-#### plot kNC boxplots for both Paul and Tuesday ####
+load('./results/bootstrapped results/DDJ_boot_Paul 1000.Rdata')
 
-data = read.csv("./data/formatted data/simulation model inputs 2013-2015 2024 2025 v4.csv") %>% 
-  filter(Lake %in% c("L", "T")) %>% 
-  mutate(kNC = kPAR - 0.0177*Manual_Chl)
-
-
-thermo.comp = ggplot(data, aes(x = as.factor(Year), y = Ztherm, fill = Lake))+
-  geom_boxplot()+
-  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
-                    labels = c("L" = "Paul", "T" = "Tuesday"))+
-  theme_bw()+
-  labs(x = "", y = "Thermocline depth (m)")+
-  theme(axis.text = element_text(size = 10),
-        axis.title = element_text(size = 12))
-
-DOC.comp = ggplot(data, aes(x = as.factor(Year), y = DOC, fill = Lake))+
-  geom_boxplot()+
-  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
-                    labels = c("L" = "Paul", "T" = "Tuesday"))+
-  theme_bw()+
-  labs(x = "", y = "DOC (mg/L)")+
-  theme(axis.text = element_text(size = 10),
-        axis.title = element_text(size = 12))
+# load in the epfeq function
+source('./scripts/Step 3- Fit DDJ models/0_EPFunction+EQ.R')
 
 
-kNC.comp = ggplot(data %>% filter(kNC > 0), aes(x = as.factor(Year), y = kNC, fill = Lake))+
-  geom_boxplot()+
-  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
-                    labels = c("L" = "Paul", "T" = "Tuesday"))+
-  theme_bw()+
-  labs(x = "", y = "kNC")+
-  theme(axis.text = element_text(size = 10),
-        axis.title = element_text(size = 12))+
-  ylim(0, 2.5)
+# Average across bootstrap replicates
+D1_mean = rowMeans(D1mat, na.rm = TRUE)
+D2_mean = sqrt(2*rowMeans(D2mat, na.rm = TRUE)) # sqrt-transform to get as s.d.
+
+D1_sd = apply(D1mat, 1, sd, na.rm = TRUE)
+D2_sd = sqrt(2*apply(D2mat, 1, sd, na.rm = TRUE))
+
+# avec grid (usually identical across columns, so take first)
+avec = amat[,1]
+
+avg_df = data.frame(
+  avec = avec,
+  D1 = D1_mean,
+  D1sd = D1_sd,
+  D2 = D2_mean,
+  D2sd = D2_sd
+)
 
 
-Chl.comp = ggplot(data %>% filter(kNC > 0), aes(x = as.factor(Year), y = Manual_Chl, fill = Lake))+
-  geom_boxplot()+
-  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
-                    labels = c("L" = "Paul", "T" = "Tuesday"))+
-  theme_bw()+
-  labs(x = "", y = "Manual Chlorophyll (μg/L)")+
-  theme(axis.text = element_text(size = 10),
-        axis.title = element_text(size = 12))
+avg_df = avg_df %>% 
+  mutate(D2_high = D2 + D2sd,
+         D2_low = D2 - D2_sd,
+         D1_high = D1 + D1sd,
+         D1_low = D1 - D1sd)
+
+drift_diff_avg =
+  avg_df %>%
+  pivot_longer(cols = c(D1, D2), names_to = "estimate") %>%
+  mutate(estimate = recode(estimate,
+                           D1 = "Drift",
+                           D2 = "Diffusion (as s.d.)"))
 
 
 
-PAR.comp = ggplot(data %>% filter(kNC > 0), aes(x = as.factor(Year), y = kPAR, fill = Lake))+
-  geom_boxplot()+
-  scale_fill_manual(values = c("L" = "steelblue3", "T" = "#8c5c2b"),
-                    labels = c("L" = "Paul", "T" = "Tuesday"))+
-  theme_bw()+
-  labs(x = "", y = "kPAR")+
-  theme(axis.text = element_text(size = 10),
-        axis.title = element_text(size = 12))+
-  ylim(0, 2.5)
+DDJboot.L = ggplot(drift_diff_avg,
+                 aes(x = avec, y = value, color = estimate, linetype = estimate)) +
+  geom_ribbon(data = avg_df,
+              aes(x = avec, ymin = D1_low, ymax = D1_high),
+              inherit.aes = FALSE,
+              fill = "grey30", alpha = 0.2) +
+  geom_ribbon(data = avg_df,
+              aes(x = avec, ymin = D2_low, ymax = D2_high),
+              inherit.aes = FALSE,
+              fill = "grey30", alpha = 0.2) +
+  geom_line(size = 1.2) +
+  geom_hline(yintercept = 0, linetype = "dotted") +
+  theme_classic() +
+  labs(x = "", y = "Drift or Diffusion", title = "Paul Lake (reference)") +
+  scale_color_manual(values = c("Drift" = "blue4",
+                                "Diffusion (as s.d.)" = "red4")) +
+  scale_linetype_manual(values = c("Drift" = "solid",
+                                   "Diffusion (as s.d.)" = "dashed")) +
+  theme(
+    legend.title = element_blank(),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    legend.position = c(0.05, 0.95),          # coordinates inside plot
+    legend.justification = c(0, 0),           # aligns bottom-left of legend box to these coordinates
+      plot.title = ggtext::element_textbox_simple(
+        fill = "#44729C",
+        color = "white",
+        face = "bold",
+        size = 13,
+        halign = 0.5,
+        linetype = 1,
+        box.color = "black",
+        linewidth = 0.5,
+        padding = margin(5, 5, 5, 5),
+        margin = margin(b = 8)
+      )
+  )+
+  ylim(-5, 12)+
+  xlim(-10, 10)
 
-ggarrange(DOC.comp, thermo.comp, PAR.comp, kNC.comp, common.legend = TRUE, nrow = 2, ncol = 2)
+
+#### plot the distribution of equilibrium points...not great.
+
+# Convert the matrix to long format
+xeq_df <- as.data.frame(t(xeqmat))  # transpose so columns are eq1, eq2, eq3
+colnames(xeq_df) <- c("Eq1","Eq2","Eq3")
+
+xeq_long <- xeq_df %>%
+  pivot_longer(cols = everything(), names_to = "Equilibrium", values_to = "Value")
+
+# Plot density
+ggplot(xeq_long, aes(x = Value, fill = Equilibrium)) +
+  geom_boxplot(alpha = 0.5, color = "black") +
+  theme_minimal() +
+  labs(title = "Bootstrap Equilibrium Points",
+       x = "Equilibrium Value",
+       y = "Density")
 
 
 
+### instead, re-calculate effective potential for each column of the matrix ###
+
+# Total D2 from Johannes: sum of diffusion & jump variances
+
+sig.D2 = sqrt(D2) # To stick with the original EPFQ, we want to use just D2, not 2*D2
+
+D2_sig = sqrt(D2mat)
+
+# check equilibria of effective potential
+EPinput = as.data.frame(cbind(avec,D1,sig.D2))
+
+# screen out missing values if present
+#EPin = na.omit(EPinput)
+
+Nboot = ncol(D1mat)
+nx = nrow(amat)
+
+EPmat = matrix(NA, 99, Nboot)
+EPchl = matrix(NA, 100, Nboot)
+
+for(i in 1:Nboot){
+  
+  avec_i   = amat[, i]
+  D1_i     = D1mat[, i]
+  sigD2_i  = D2_sig[, i]
+  
+  # keep = !(is.na(avec_i) | is.na(D1_i) | is.na(sigD2_i))
+  
+  EPout = EPFEQ(avec_i, D1_i, sigD2_i)
+  
+  EPmat[, i] = EPout[[2]]
+  EPchl[, i] = EPout[[1]] # also save the chl associated with each EP
+  
+}
+
+
+EP_mean = apply(EPmat, 1, mean, na.rm = TRUE)
+chl_mean = apply(EPchl, 1, mean, na.rm = TRUE)
+EP_sd = apply(EPmat, 1, sd, na.rm = TRUE)
+
+chl_mean = chl_mean[2:length(chl_mean)] # because EP_mean only has 99 obs
+
+EP.all = data.frame(chl_mean, EP_mean, EP_sd, index = c(1:length(EP_mean))) %>% 
+  mutate(EP_high = EP_mean + EP_sd, 
+         EP_low = EP_mean - EP_sd)
+
+
+EP.boot.L = ggplot(EP.all, aes(x = chl_mean, y = EP_mean))+
+  geom_line(size = 1.2)+
+  geom_ribbon(data = EP.all,
+              aes(x = chl_mean, ymin = EP_low, ymax = EP_high),
+              inherit.aes = FALSE,
+              fill = "grey30", alpha = 0.2) +
+  theme_classic()+
+  theme(axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        legend.text = element_text(size = 12))+
+  labs(x = "Chlorophyll, standardized level", y = "Mean Effective Potential")+
+  ylim(0.3, 2)+
+  xlim(-10, 10)
 
 
 
+png("./figures/Supplemental figures/Figure S15 Bootstrapped DDJ models and EP.png", res = 600, height = 200, width = 200, units = "mm") 
 
 
+ggarrange(DDJboot, DDJboot.L, EP.boot, EP.boot.L, nrow = 2, ncol = 2, align = "v")
 
 
-
-
+dev.off()
 
 
 ### all the zoop data combined by Dat 
