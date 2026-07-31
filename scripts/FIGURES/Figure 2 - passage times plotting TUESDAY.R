@@ -17,6 +17,12 @@ t15 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2015 global 2026
 t14 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2014 global 2026-06-18 THINNED.csv")
 t13 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2013 global 2026-06-18 THINNED.csv")
 
+
+# read in Tukey's letters
+T.letters = read.csv("./results/passage times/tukey_letters 2026-07-30.csv") %>% 
+  filter(lake == "Tuesday") %>% 
+  mutate(year = as.factor(year))
+
 pt.all = rbind(t25, t24, t15, t14, t13) %>% 
   mutate(hours = minutes/60) 
 
@@ -26,11 +32,13 @@ pt.days = pt.all %>%
 green_palette <- c("#CBD4AC", "#b4c187", "#80914b", "#5a6b3a", "#496231")
 brown_palette <- c("#CFB491", "#9c7744", "#8c5c2b", "#533113", "#361c07")
 
-
+T.letters.right = T.letters %>% filter(basin == "right")
 
 rb.plot = ggplot(pt.all %>% filter(basin == "right" & minutes > 30), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
   labs(y = "", x = "") +
+  geom_text(data = T.letters.right, aes(x = year, y = y_pos, label = Letters),
+            inherit.aes = FALSE, size = 5) +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = green_palette)+
   theme_classic()+
@@ -53,17 +61,21 @@ rb.plot = ggplot(pt.all %>% filter(basin == "right" & minutes > 30), aes(x = as.
 
 #TukeyHSD(aov_left)
 
-kruskal.test(hours ~ factor(year), data = subset(pt.all, basin == "left"))
-pairwise.t.test(
-  x = log10(subset(pt.all, basin == "left")$hours),
-  g = subset(pt.all, basin == "left")$year,
-  p.adjust.method = "BH"   # or "bonferroni"
-)
+# kruskal.test(hours ~ factor(year), data = subset(pt.all, basin == "left"))
+# pairwise.t.test(
+#   x = log10(subset(pt.all, basin == "left")$hours),
+#   g = subset(pt.all, basin == "left")$year,
+#   p.adjust.method = "BH"   # or "bonferroni"
+# )
 
+
+T.letters.left = T.letters %>% filter(basin == "left")
 
 lb.plot = ggplot(pt.all %>% filter(basin == "left" & minutes > 30), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
   labs(y = "passage time (days)", x = "") +
+  geom_text(data = T.letters.left, aes(x = year, y = y_pos, label = Letters),
+            inherit.aes = FALSE, size = 5) +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = rev(brown_palette))+
   theme_classic()+
@@ -198,6 +210,15 @@ ptimes <- ggplot(
     fill = basin_year
   )
 ) +
+  geom_text(
+    data = T.letters,
+    aes(
+      x = year,
+      y = y_pos,
+      label = Letters
+    ),
+    inherit.aes = FALSE,
+    size = 3) +
   geom_boxplot(alpha = 0.8) +
   facet_wrap(~ basin, nrow = 1) +
   scale_fill_manual(values = fill_vals) +

@@ -18,6 +18,10 @@ t15 = read.csv("./results/passage times/Paul ARIMA-corrected 2015 global 2026-06
 t14 = read.csv("./results/passage times/Paul ARIMA-corrected 2014 global 2026-06-18 THINNED.csv")
 t13 = read.csv("./results/passage times/Paul ARIMA-corrected 2013 global 2026-06-18 THINNED.csv")
 
+# read in Tukey's letters
+L.letters = read.csv("./results/passage times/tukey_letters 2026-07-30.csv") %>% 
+  filter(lake == "Paul") %>% 
+  mutate(year = as.factor(year))
 
 pL.all = rbind(t25, t24, t15, t14, t13) %>% 
   mutate(hours = minutes/60) 
@@ -36,6 +40,8 @@ green_palette <- c("#CBD4AC", "#b4c187", "#80914b", "#5a6b3a", "#496231")
 #   "#314962"
 # )
 
+
+
 blue_palette <- c(
   "#B4C5CF",
   "#44729C",
@@ -44,8 +50,13 @@ blue_palette <- c(
   "#071C36"
 )
 
-rb.plot = ggplot(pL.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
+
+L.letters.right = L.letters %>% filter(basin == "right")
+
+rb.plot = ggplot(pL.all %>% filter(basin == "right" & minutes > 30), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
+  geom_text(data = L.letters.right, aes(x = year, y = y_pos, label = Letters),
+            inherit.aes = FALSE, size = 5) +
   labs(y = "", x = "Year", title = "high-pigment") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = green_palette)+
@@ -64,21 +75,21 @@ rb.plot = ggplot(pL.all %>% filter(basin == "right"), aes(x = as.factor(year), y
 
 
 # no log-transformation
-ggplot(pL.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
-  geom_boxplot(alpha = 0.8)+
-  labs(y = "", x = "Year", title = "high-pigment") +
-  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
-  scale_fill_manual(values = green_palette)+
-  theme_classic()+
-  #scale_y_log10()+
-  theme(legend.position = "none")+
-  theme(
-    axis.text.y  = element_text(size = 12),
-    axis.text.x = element_text(size = 10),
-    axis.title = element_text(size = 12),
-    strip.text = element_text(size = 12),
-    legend.position = "none"
-  ) 
+# ggplot(pL.all %>% filter(basin == "right" & minutes > 30), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
+#   geom_boxplot(alpha = 0.8)+
+#   labs(y = "", x = "Year", title = "high-pigment") +
+#   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+#   scale_fill_manual(values = green_palette)+
+#   theme_classic()+
+#   #scale_y_log10()+
+#   theme(legend.position = "none")+
+#   theme(
+#     axis.text.y  = element_text(size = 12),
+#     axis.text.x = element_text(size = 10),
+#     axis.title = element_text(size = 12),
+#     strip.text = element_text(size = 12),
+#     legend.position = "none"
+#   ) 
 
 # aov_left <- aov(hours ~ factor(year), data = subset(pL.all %>% filter(minutes > 30), basin == "right"))
 # summary(aov_left)
@@ -93,9 +104,14 @@ ggplot(pL.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)
 # )
 
 
-lb.plot = ggplot(pL.all %>% filter(basin == "left"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
+L.letters.left = L.letters %>% filter(basin == "left")
+
+
+lb.plot = ggplot(pL.all %>% filter(basin == "left" & minutes > 30), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
   labs(y = "passage time (days)", x = "Year", title = "low-pigment") +
+  geom_text(data = L.letters.left, aes(x = year, y = y_pos, label = Letters),
+            inherit.aes = FALSE, size = 5) +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = rev(blue_palette))+
   theme_bw()+
@@ -115,49 +131,46 @@ ptimes = ggarrange(lb.plot, rb.plot, align = "h")
 
 
 #### version of the plot with no filtering ####
-rb.plot = ggplot(pL.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
-  geom_boxplot(alpha = 0.8)+
-  #geom_point()+
-  labs(y = "", x = "") +
-  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
-  scale_fill_manual(values = green_palette)+
-  theme_bw()+
-  scale_y_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100))+
-  theme(legend.position = "none")+
-  theme(
-    axis.text.y  = element_text(size = 12),
-    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
-    axis.title = element_text(size = 12),
-    strip.text = element_text(size = 12),
-    legend.position = "none"
-  ) +
-  theme(plot.margin = margin(r = 0, l = 0, t = 0.5, b = 0))
+# rb.plot = ggplot(pL.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
+#   geom_boxplot(alpha = 0.8)+
+#   #geom_point()+
+#   labs(y = "", x = "") +
+#   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+#   scale_fill_manual(values = green_palette)+
+#   theme_bw()+
+#   scale_y_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100))+
+#   theme(legend.position = "none")+
+#   theme(
+#     axis.text.y  = element_text(size = 12),
+#     axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+#     axis.title = element_text(size = 12),
+#     strip.text = element_text(size = 12),
+#     legend.position = "none"
+#   ) +
+#   theme(plot.margin = margin(r = 0, l = 0, t = 0.5, b = 0))
 
 
-
-lb.plot = ggplot(pL.all %>% filter(basin == "left"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
-  geom_boxplot(alpha = 0.8)+
-  #geom_point()+
-  labs(y = "", x = "") +
-  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
-  scale_fill_manual(values = rev(blue_palette))+
-  theme_bw()+
-  scale_y_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100))+
-  theme(legend.position = "none")+
-  theme(
-    axis.text.y  = element_text(size = 12),
-    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
-    axis.title = element_text(size = 12),
-    strip.text = element_text(size = 12),
-    legend.position = "none"
-  ) +
-  theme(plot.margin = margin(r = 0, l = 0, t = 0.5, b = 0))
-
-
-ptimes = ggarrange(lb.plot, rb.plot, align = "h")
+# 
+# lb.plot = ggplot(pL.all %>% filter(basin == "left"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
+#   geom_boxplot(alpha = 0.8)+
+#   #geom_point()+
+#   labs(y = "", x = "") +
+#   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
+#   scale_fill_manual(values = rev(blue_palette))+
+#   theme_bw()+
+#   scale_y_log10(breaks = c(0.1, 1, 10, 100), limits = c(0.005, 100))+
+#   theme(legend.position = "none")+
+#   theme(
+#     axis.text.y  = element_text(size = 12),
+#     axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+#     axis.title = element_text(size = 12),
+#     strip.text = element_text(size = 12),
+#     legend.position = "none"
+#   ) +
+#   theme(plot.margin = margin(r = 0, l = 0, t = 0.5, b = 0))
 
 
-
+#ptimes = ggarrange(lb.plot, rb.plot, align = "h")
 
 
 annot.df <- data.frame(
@@ -212,6 +225,15 @@ ptimes <- ggplot(
     color = "black",
     fontface = "bold.italic"
   ) +
+  geom_text(
+    data = L.letters,
+    aes(
+      x = year,
+      y = y_pos,
+      label = Letters
+    ),
+    inherit.aes = FALSE,
+    size = 3) +
   theme(
     axis.text.y = element_text(size = 10),
     axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
@@ -221,6 +243,13 @@ ptimes <- ggplot(
     plot.margin = margin(r = 0, l = 0, t = 1, b = 0))+
   theme(strip.text = element_blank(),
         strip.background = element_blank())
+
+
+
+
+
+
+
 
 ### density ridgeline plots of passage time ###
 
@@ -641,6 +670,9 @@ ggarrange(tues.all, paul.all, align = "hv")
 
 dev.off()
 
+
+
+### nutrients and kPAR
 ggplot(pt.mean, aes(x = total.nuts, y = (mean.minutes), color = basin))+
   geom_point(size = 5)+
   geom_smooth(method = "lm", se = FALSE)+
@@ -673,6 +705,19 @@ ggplot(pt.mean, aes(x = mean.kPAR, y = log10(mean.minutes), color = basin))+
   geom_text_repel(aes(label = Year),
                   size = 4,
                   show.legend = FALSE) 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

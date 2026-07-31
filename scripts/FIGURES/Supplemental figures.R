@@ -371,7 +371,9 @@ dlm.results.paul = dlm.results.actual %>%
   full_join(dlm.results.predicted, by = c("Tstep", "datetime")) %>% 
   mutate(year = floor(Tstep), lake = "L")
 
-
+# check R2 of fit
+summary(lm(yhat~X.dlm, data = dlm.results.tuesday))
+summary(lm(yhat~X.dlm, data = dlm.results.paul))
 
 # combine
 all.dlm = bind_rows(dlm.results.tuesday, dlm.results.paul) %>% 
