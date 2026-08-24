@@ -317,6 +317,8 @@ compare.to.zoop = ggplot(pt.mean, aes(x = zoop.mean, y = (mean.days), color = ba
 
 
 
+
+
 #png("./figures/ASLO 2026/zoop and pt.png", res = 300, units = "in", height = 4, width = 8)
 
 compare.to.zoop
@@ -402,6 +404,81 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
 
 ggarrange(ptimes, compare.to.knc, nrow = 2, ncol = 1)
 
+
+
+
+### compare to kPAR
+
+
+compare.to.kPAR = ggplot(pt.mean, aes(x = mean.kPAR, y = (mean.days), fill = basin, color = basin)) +
+  stat_poly_eq(
+    data = subset(pt.mean, basin == "left"),
+    aes(label = paste(..rr.label..)),
+    formula = y ~ x,
+    parse = TRUE,
+    geom = "text",
+    label.x = pos.df$x[pos.df$basin == "left"],
+    label.y = pos.df$y[pos.df$basin == "left"],
+    #fill = "white",
+    color = "black",
+    #label.size = 0.25,
+    #label.r = unit(0, "lines"),
+    size = 3
+  ) +
+  stat_poly_eq(
+    data = subset(pt.mean, basin == "right"),
+    aes(label = paste(..rr.label..)),
+    formula = y ~ x,
+    parse = TRUE,
+    geom = "text",
+    label.x = pos.df$x[pos.df$basin == "right"],
+    label.y = pos.df$y[pos.df$basin == "right"],
+    #fill = "white",
+    color = "black",
+    #label.size = 0.25,
+    #label.r = unit(0, "lines"),
+    size = 3
+  )+
+  geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
+  geom_point(size = 2, pch = 21, color = "black") +
+  geom_text_repel(aes(label = Year), color = "black", size = 2.7,
+                  show.legend = FALSE, max.overlaps = Inf,
+                  box.padding = 0.2, point.padding = 1.5,
+                  force = 2, min.segment.length = 0, segment.color = NA) +
+  facet_wrap(~basin, scales = "free_x",
+             labeller = as_labeller(c(left = "low-pigment",
+                                      right = "high-pigment"))) +
+  scale_fill_manual(values = c(left = "#755A42",
+                               right = "#5a6b3a")) +
+  
+  scale_color_manual(values = c(left = "#755A42",
+                                right = "#5a6b3a")) +
+  labs(x = "light attenuation (kPAR)",
+       y = "mean passage time (days)",
+       title = "Tuesday") +
+  theme_bw() +
+  scale_y_log10(
+    limits = c(0.01, 100),
+    breaks = c(0.01, 0.1, 1, 10, 100),
+    labels = c("0.01", "0.1", "1", "10", "100"))+
+  facetted_pos_scales(
+    x = list(
+      basin == "left"  ~ scale_x_continuous(breaks = c(0.9, 1.2, 1.5, 1.8)),
+      basin == "right" ~ scale_x_continuous(breaks = c(0.9, 1.2, 1.5))
+    )
+  )+
+  theme(legend.position = "none",
+        strip.text = element_text(size = 12))+
+  theme(
+    axis.text  = element_text(size = 10),
+    axis.title = element_text(size = 12),
+    strip.text = element_blank(),
+    legend.position = "none",
+    panel.grid = element_blank()
+  ) +
+  theme(plot.margin = margin(r = 1))
+
+compare.to.kPAR
 
 ### compare to kNC for DEFENSE
 

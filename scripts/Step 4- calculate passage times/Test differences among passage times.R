@@ -51,9 +51,47 @@ both.all = bind_rows(pL.all, tL.all) %>%
     days = hours/24)
 
 n.both = both.all %>% 
+  filter(minutes > 30) %>% 
   group_by(lake, year, basin) %>% 
   summarize(n.obs = n())
 
+mean.both = both.all %>% 
+  filter(minutes > 30) %>% 
+  group_by(lake, year, basin) %>% 
+  summarize(mean.pt.days = mean(days, na.rm = TRUE),
+            mean.pt.hours = mean(hours, na.rm = TRUE),
+            sd.pt.days = sd(days, na.rm = TRUE))
+
+
+mod <- aov(days ~ lake * year * basin, data = both.all)
+
+summary(mod)
+
+
+library(broom)
+ttests <- both.all %>%
+  filter(minutes > 30) %>% 
+  group_by(year, basin) %>%
+  group_modify(~ tidy(t.test(days ~ lake, data = .x))) %>%
+  ungroup()
+
+ttests
+
+library(emmeans)
+emmeans(mod, pairwise ~ lake | year * basin)
+
+mean.wide <- mean.both %>%
+  ungroup() %>%
+  select(lake, year, basin, mean.pt.days, sd.pt.days) %>%
+  pivot_wider(
+    names_from = lake,
+    values_from = c(mean.pt.days, sd.pt.days)
+  ) %>%
+  mutate(
+    diff.days = mean.pt.days_Paul - mean.pt.days_Tuesday
+  )
+
+mean.wide
 
 # make interaction of lake, year, and basin
 pt.groups <- both.all %>%
