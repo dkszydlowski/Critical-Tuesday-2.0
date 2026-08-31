@@ -277,6 +277,7 @@ pt.mean = pt.all %>%
   left_join(data.mean, by = "Year")
 
 ## add in zooplankton biomass ##
+# these are mean values calculated in the Table 1 script
 pt.mean = pt.mean %>% 
   mutate(zoop.mean = NA) %>% 
   mutate(zoop.mean = replace(zoop.mean, Year == 2013, 0.19)) %>% 

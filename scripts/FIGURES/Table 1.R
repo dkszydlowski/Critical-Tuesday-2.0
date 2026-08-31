@@ -26,6 +26,9 @@ knc.mean = data %>%
 ### all the zoop data combined by Dat 
 
 # this is the Cascade zooplankton data on EDI
+# Wilkinson, G., S. Carpenter, and M. Pace. 2026. Cascade Project at North Temperate Lakes LTER Core Data Zooplankton 1984 - 2025 ver 7.
+# Environmental Data Initiative. https://doi.org/10.6073/pasta/b66e5324b88dec37c35048e6332629fc (Accessed 2026-08-31).
+
 zoops = read.csv("./data/formatted data/cascade_zooplankton_v07_DTH.csv")
 
 # sum by year and doy

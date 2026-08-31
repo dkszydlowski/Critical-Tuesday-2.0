@@ -353,53 +353,9 @@ if(nrow(pt.mean) < 10){
   )
 }
 
-## add in zooplankton biomass ##
-# pt.mean = pt.mean %>% 
-#   mutate(zoop.mean = NA) %>% 
-#   mutate(zoop.mean = replace(zoop.mean, Year == 2013, 0.19)) %>% 
-#   mutate(zoop.mean = replace(zoop.mean, Year == 2014, 0.42)) %>% 
-#   mutate(zoop.mean = replace(zoop.mean, Year == 2015, 0.38)) %>% 
-#   mutate(zoop.mean = replace(zoop.mean, Year == 2024, 0.47)) %>% 
-#   mutate(zoop.mean = replace(zoop.mean, Year == 2025, 0.14))
 
 
 
-
-# compare.to.zoop = ggplot(pt.mean, aes(x = zoop.mean, y = (mean.days), color = basin)) +
-#   geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
-#   geom_point(size = 3.8) +
-#   geom_text_repel(aes(label = Year), color = "black", size = 3,
-#                   show.legend = FALSE, max.overlaps = Inf,
-#                   box.padding = 0.6, point.padding = 0.5,
-#                   force = 2, min.segment.length = 0, segment.color = NA) +
-#   facet_wrap(~basin,
-#              labeller = as_labeller(c(left = "low-chlorophyll",
-#                                       right = "high-chlorophyll"))) +
-#   scale_color_manual(values = c(left =    "#B4C5CF",
-#                                 right = "#5a6b3a")) +
-#   labs(x = "mean zooplankton biomass (g m-2)",
-#        y = "mean passage time (days)") +
-#   stat_poly_eq(aes(label = paste(..rr.label..)),
-#                formula = y ~ x, parse = TRUE,
-#                label.x = "left", label.y = "top", color = "black") +
-#   theme_classic() +
-#   scale_y_log10(limits = c(0.01, 100))+
-#   theme(legend.position = "none",
-#         strip.text = element_text(size = 12))+
-#   theme(
-#     axis.text  = element_text(size = 12),
-#     axis.title = element_text(size = 12),
-#     strip.text = element_text(size = 12),
-#     legend.position = "none"
-#   ) 
-# 
-
-
-#png("./figures/ASLO 2026/zoop and pt.png", res = 300, units = "in", height = 4, width = 8)
-
-#compare.to.zoop
-
-#dev.off()
 pos.df <- pt.mean %>%
   group_by(basin) %>%
   summarise(

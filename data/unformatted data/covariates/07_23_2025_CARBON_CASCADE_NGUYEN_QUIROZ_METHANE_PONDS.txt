@@ -1,0 +1,195 @@
+[System]	
+Instrument Options	TOC/ASI/IC Unit/	
+
+[Data]	
+Type	Sample Name	Sample ID	Result(IC)	Result(NPOC)	Unit	Vial	Date / Time	
+Unknown	MQ		0.01239		mg/L	1	7/23/2025 2:30:57 PM	
+Unknown	MQ		0.04299		mg/L	2	7/23/2025 2:41:28 PM	
+Unknown	MQ		0.1389		mg/L	3	7/23/2025 2:53:05 PM	
+Standard	IC 10 Cal		50.00		mg/L	4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6	7/23/2025 4:25:11 PM	
+Unknown	2ppm check DIC		2.290		mg/L	5	7/23/2025 4:35:40 PM	
+Unknown	10ppm DIC ICV		9.831		mg/L	7	7/23/2025 4:43:42 PM	
+Unknown	20ppm DIC ICV		19.15		mg/L	8	7/23/2025 4:52:19 PM	
+Unknown	blank		0.08662		mg/L	4	7/23/2025 5:03:53 PM	
+Unknown	YR_14Jul25_Veg_DOC		49.49		mg/L	9	7/23/2025 5:12:52 PM	
+Unknown	YR_14Jul25_Clear_DOC		48.04		mg/L	10	7/23/2025 5:21:25 PM	
+Unknown	YRW_16Jul26_DOC		76.89		mg/L	11	7/23/2025 5:30:20 PM	
+Unknown	SMW_16Jul26_DOC		79.85		mg/L	12	7/23/2025 5:39:05 PM	
+Unknown	YRM_16Jul26_DOC		40.04		mg/L	13	7/23/2025 5:47:20 PM	
+Unknown	YRS_16Jul26_DOC		44.23		mg/L	14	7/23/2025 5:56:10 PM	
+Unknown	PB_17Jul25_DOC		26.00		mg/L	15	7/23/2025 6:04:19 PM	
+Unknown	DC_17Jul25_DOC		71.13		mg/L	16	7/23/2025 6:13:28 PM	
+Unknown	YR_17Jul25_DOC		47.54		mg/L	17	7/23/2025 6:22:13 PM	
+Unknown	SC_17Jul25_DOC		80.02		mg/L	18	7/23/2025 6:31:00 PM	
+Unknown	SC_17Jul25_DOC dup		80.64		mg/L	18	7/23/2025 6:38:42 PM	
+Unknown	blank		0.08757		mg/L	19	7/23/2025 6:49:14 PM	
+Unknown	blank		0.08553		mg/L	19	7/23/2025 6:57:48 PM	
+Unknown	2ppm check DIC		2.188		mg/L	20	7/23/2025 7:05:49 PM	
+Unknown	20ppm DIC ICV		20.05		mg/L	8	7/23/2025 7:14:06 PM	
+Unknown	MC_14Jul25_U_DOC		7.699		mg/L	21	7/23/2025 7:22:22 PM	
+Unknown	MC_14Jul25_D_DOC		10.23		mg/L	22	7/23/2025 7:30:31 PM	
+Unknown	DL_15Jul25_U_DOC		7.632		mg/L	23	7/23/2025 7:38:37 PM	
+Unknown	DL_15Jul25_D_DOC		7.264		mg/L	24	7/23/2025 7:46:43 PM	
+Unknown	YR_18Jul25_Clear_DOC		47.18		mg/L	25	7/23/2025 7:55:03 PM	
+Unknown	YR_18Jul25_Veg_DOC		48.91		mg/L	26	7/23/2025 8:03:55 PM	
+Unknown	PB_21Jul25_D_DOC		40.48		mg/L	27	7/23/2025 8:12:47 PM	
+Unknown	PB_21Jul25_U_DOC		80.10		mg/L	28	7/23/2025 8:22:11 PM	
+Unknown	F-Site1-0m-071525		28.46		mg/L	29	7/23/2025 8:30:22 PM	
+Unknown	F-Site2-0m-071525		28.74		mg/L	30	7/23/2025 8:38:40 PM	
+Unknown	F-Site2-0m-071525 dup		28.72		mg/L	30	7/23/2025 8:45:03 PM	
+Unknown	blank		0.1343		mg/L	31	7/23/2025 8:53:27 PM	
+Unknown	blank		0.08443		mg/L	31	7/23/2025 8:59:46 PM	
+Unknown	2ppm check DIC		2.396		mg/L	20	7/23/2025 9:08:28 PM	
+Unknown	20ppm DIC ICV		21.42		mg/L	8	7/23/2025 9:16:55 PM	
+Unknown	F-Site3-0m-071525		28.80		mg/L	32	7/23/2025 9:25:35 PM	
+Unknown	F-Site4-0m-071525		28.87		mg/L	33	7/23/2025 9:33:44 PM	
+Unknown	F-Site4.2-0m-071525		28.54		mg/L	34	7/23/2025 9:42:03 PM	
+Unknown	F-Site5-0m-071525		28.56		mg/L	35	7/23/2025 9:50:12 PM	
+Unknown	F-Site6-0m-071525		28.61		mg/L	36	7/23/2025 9:58:22 PM	
+Unknown	P25-196-D9-V		26.36		mg/L	37	7/23/2025 10:06:53 PM	
+Unknown	R25WEEK9META		1.484		mg/L	38	7/23/2025 10:15:00 PM	
+Unknown	R25WEEK9PML		1.575		mg/L	39	7/23/2025 10:23:25 PM	
+Unknown	T25WEEK9PML		0.6489		mg/L	40	7/23/2025 10:31:57 PM	
+Unknown	R25WEEK9PML		1.332		mg/L	41	7/23/2025 10:42:28 PM	
+Unknown	R25WEEK9PML dup		1.344		mg/L	41	7/23/2025 10:51:21 PM	
+Unknown	blank		0.09716		mg/L	42	7/23/2025 10:59:22 PM	
+Unknown	blank		0.07576		mg/L	42	7/23/2025 11:06:00 PM	
+Unknown	2ppm check DIC		2.457		mg/L	55	7/23/2025 11:14:34 PM	
+Unknown	20ppm DIC ICV		19.98		mg/L	43	7/23/2025 11:22:55 PM	
+Unknown	R25WEEK8HYPO		4.641		mg/L	44	7/23/2025 11:31:04 PM	
+Unknown	T25WEEK9HYPO		2.618		mg/L	45	7/23/2025 11:39:10 PM	
+Unknown	R25WEEK9HYPO		5.675		mg/L	46	7/23/2025 11:47:19 PM	
+Unknown	L25WEEK9PML		1.545		mg/L	47	7/23/2025 11:55:49 PM	
+Unknown	R25WEEK8META		1.810		mg/L	48	7/24/2025 12:03:57 AM	
+Unknown	L25WEEK9PML		1.396		mg/L	49	7/24/2025 12:12:12 AM	
+Unknown	L25WEEK8HYPO		3.585		mg/L	50	7/24/2025 12:20:32 AM	
+Unknown	T25WEEK8PML		0.7600		mg/L	51	7/24/2025 12:28:39 AM	
+Unknown	L25WEEK8META		1.537		mg/L	52	7/24/2025 12:36:49 AM	
+Unknown	L25WEEK9HYPO		3.447		mg/L	53	7/24/2025 12:44:56 AM	
+Unknown	L25WEEK9HYPO dup		3.420		mg/L	53	7/24/2025 12:51:28 AM	
+Unknown	blank		0.1752		mg/L	54	7/24/2025 12:59:37 AM	
+Unknown	blank		0.1406		mg/L	54	7/24/2025 1:08:24 AM	
+Unknown	2ppm check DIC		2.575		mg/L	55	7/24/2025 1:16:30 AM	
+Unknown	20ppm DIC ICV		20.57		mg/L	43	7/24/2025 1:25:05 AM	
+Unknown	L25WEEK9META		1.450		mg/L	70	7/24/2025 1:33:17 AM	
+Unknown	T25WEEK8META		0.7966		mg/L	71	7/24/2025 1:43:55 AM	
+Unknown	7_14_25 Blank		0.2937		mg/L	72	7/24/2025 1:51:58 AM	
+Unknown	7_7_25 Blank		0.3155		mg/L	73	7/24/2025 2:02:36 AM	
+Unknown	T25WEEK9META		0.6841		mg/L	74	7/24/2025 2:12:52 AM	
+Unknown	T25WEEK8HYPO		2.797		mg/L	75	7/24/2025 2:21:08 AM	
+Unknown	YR_21Jul25_Veg_DOC		48.88		mg/L	76	7/24/2025 2:29:28 AM	
+Unknown	YR_21Jul25_Clear_DOC		48.69		mg/L	77	7/24/2025 2:38:15 AM	
+Unknown	BR_22Jul25_D_DOC		44.25		mg/L	78	7/24/2025 2:47:00 AM	
+Unknown	BR_22Jul25_U_DOC		43.05		mg/L	79	7/24/2025 2:55:45 AM	
+Unknown	BR_22Jul25_U_DOC dup		43.06		mg/L	79	7/24/2025 3:02:22 AM	
+Unknown	blank		0.2147		mg/L	19	7/24/2025 3:12:43 AM	
+Unknown	blank		0.1591		mg/L	31	7/24/2025 3:20:51 AM	
+Unknown	2ppm check DIC		2.749		mg/L	55	7/24/2025 3:29:34 AM	
+Unknown	20ppm DIC ICV		21.54		mg/L	43	7/24/2025 3:37:53 AM	
+Unknown	SC_22Jul25_DOC_1		86.53		mg/L	80	7/24/2025 3:48:14 AM	
+Unknown	SC_22Jul25_DOC_3		85.55		mg/L	81	7/24/2025 3:57:47 AM	
+Unknown	SC_22Jul25_DOC_2		85.29		mg/L	82	7/24/2025 4:06:32 AM	
+Unknown	P25-203-T0-V		3.498		mg/L	83	7/24/2025 4:14:52 AM	
+Unknown	P25-199-O9-V		21.36		mg/L	84	7/24/2025 4:23:02 AM	
+Unknown	P25-201-S9-V		5.843		mg/L	85	7/24/2025 4:31:12 AM	
+Unknown	P25-201-S9-V dup		5.963		mg/L	85	7/24/2025 4:37:33 AM	
+Unknown	blank		0.1829		mg/L	42	7/24/2025 4:45:53 AM	
+Unknown	blank		0.1752		mg/L	54	7/24/2025 4:54:08 AM	
+Unknown	2ppm check DIC		2.604		mg/L	90	7/24/2025 5:02:35 AM	
+Unknown	20ppm DIC ICV		20.82		mg/L	91	7/24/2025 5:11:01 AM	
+Unknown	blank			0.05288	mg/L	56	7/24/2025 5:22:30 AM	
+Unknown	blank			0.1743	mg/L	56	7/24/2025 5:33:34 AM	
+Standard	OC Cal	OC standards		50.00	mg/L	57, 58, 58, 58, 59, 59, 59, 59, 59, 59	7/24/2025 7:29:08 AM	
+Unknown	2ppm check DOC			2.030	mg/L	58	7/24/2025 7:43:02 AM	
+Unknown	5ppm DOC ICV			4.949	mg/L	60	7/24/2025 7:54:11 AM	
+Unknown	20ppm DOC ICV			19.55	mg/L	61	7/24/2025 8:06:17 AM	
+Unknown	blank			0.1359	mg/L	57	7/24/2025 8:19:04 AM	
+Unknown	YR_14Jul25_Veg_DOC			5.603	mg/L	9	7/24/2025 8:30:06 AM	
+Unknown	YR_14Jul25_Clear_DOC			5.698	mg/L	10	7/24/2025 8:41:16 AM	
+Unknown	YRW_16Jul26_DOC			2.342	mg/L	11	7/24/2025 8:54:12 AM	
+Unknown	SMW_16Jul26_DOC			5.952	mg/L	12	7/24/2025 9:05:14 AM	
+Unknown	YRM_16Jul26_DOC			5.500	mg/L	13	7/24/2025 9:16:17 AM	
+Unknown	YRS_16Jul26_DOC			5.700	mg/L	14	7/24/2025 9:27:23 AM	
+Unknown	PB_17Jul25_DOC			5.775	mg/L	15	7/24/2025 9:38:21 AM	
+Unknown	DC_17Jul25_DOC			7.239	mg/L	16	7/24/2025 9:49:26 AM	
+Unknown	YR_17Jul25_DOC			5.559	mg/L	17	7/24/2025 10:00:33 AM	
+Unknown	SC_17Jul25_DOC			6.314	mg/L	18	7/24/2025 10:11:25 AM	
+Unknown	YR_17Jul25_DOC dup			5.617	mg/L	17	7/24/2025 10:22:47 AM	
+Unknown	blank			0.1343	mg/L	62	7/24/2025 10:33:24 AM	
+Unknown	blank			0.1437	mg/L	62	7/24/2025 10:44:12 AM	
+Unknown	2ppm check DOC			2.017	mg/L	63	7/24/2025 10:55:01 AM	
+Unknown	20ppm DOC ICV			19.55	mg/L	61	7/24/2025 11:07:22 AM	
+Unknown	MC_14Jul25_U_DOC			6.764	mg/L	21	7/24/2025 11:18:49 AM	
+Unknown	MC_14Jul25_D_DOC			6.894	mg/L	22	7/24/2025 11:29:52 AM	
+Unknown	DL_15Jul25_U_DOC			5.214	mg/L	23	7/24/2025 11:40:58 AM	
+Unknown	DL_15Jul25_D_DOC			5.276	mg/L	24	7/24/2025 11:52:08 AM	
+Unknown	YR_18Jul25_Clear_DOC			5.544	mg/L	25	7/24/2025 12:03:13 PM	
+Unknown	DOC-2 USGS			2.187	mg/L	88, 88, 88	7/24/2025 12:34:44 PM	
+Unknown	YR_18Jul25_Veg_DOC			5.659	mg/L	26	7/24/2025 12:45:54 PM	
+Unknown	PB_21Jul25_D_DOC			6.164	mg/L	27	7/24/2025 12:56:52 PM	
+Unknown	PB_21Jul25_U_DOC			3.421	mg/L	28	7/24/2025 1:07:45 PM	
+Unknown	F-Site1-0m-071525			6.910	mg/L	29	7/24/2025 1:18:59 PM	
+Unknown	F-Site2-0m-071525			7.123	mg/L	30	7/24/2025 1:30:04 PM	
+Unknown	F-Site1-0m-071525 dup			6.846	mg/L	29	7/24/2025 1:41:39 PM	
+Unknown	blank			0.1365	mg/L	64	7/24/2025 1:54:20 PM	
+Unknown	blank			0.1051	mg/L	64	7/24/2025 2:05:40 PM	
+Unknown	2ppm check DOC			1.985	mg/L	63	7/24/2025 2:16:41 PM	
+Unknown	20 ppm DOC ICV			19.59	mg/L	61	7/24/2025 2:28:35 PM	
+Unknown	F-Site3-0m-071525			6.837	mg/L	32	7/24/2025 2:40:02 PM	
+Unknown	F-Site4-0m-071525			7.322	mg/L	33	7/24/2025 2:50:56 PM	
+Unknown	F-Site4.2-0m-071525			6.899	mg/L	34	7/24/2025 3:02:03 PM	
+Unknown	F-Site5-0m-071525			6.821	mg/L	35	7/24/2025 3:13:14 PM	
+Unknown	F-Site6-0m-071525			6.882	mg/L	36	7/24/2025 3:24:33 PM	
+Unknown	P25-196-D9-V			6.258	mg/L	37	7/24/2025 3:35:54 PM	
+Unknown	R25WEEK9META			4.784	mg/L	38	7/24/2025 3:46:55 PM	
+Unknown	R25WEEK9PML			4.776	mg/L	39	7/24/2025 3:58:08 PM	
+Unknown	T25WEEK9PML			7.647	mg/L	40	7/24/2025 4:09:41 PM	
+Unknown	R25WEEK9PML			4.901	mg/L	41	7/24/2025 4:20:42 PM	
+Unknown	T25WEEK9PML dup			7.746	mg/L	40	7/24/2025 4:32:27 PM	
+Unknown	blank			0.1567	mg/L	65	7/24/2025 4:45:03 PM	
+Unknown	blank			0.1059	mg/L	65	7/24/2025 4:53:56 PM	
+Unknown	2ppm check DOC			2.036	mg/L	68	7/24/2025 5:04:54 PM	
+Unknown	20ppm DOC ICV			19.97	mg/L	66	7/24/2025 5:17:08 PM	
+Unknown	R25WEEK8HYPO			4.799	mg/L	44	7/24/2025 5:28:17 PM	
+Unknown	T25WEEK9HYPO			8.554	mg/L	45	7/24/2025 5:39:41 PM	
+Unknown	R25WEEK9HYPO			5.058	mg/L	46	7/24/2025 5:50:54 PM	
+Unknown	L25WEEK9PML			4.243	mg/L	47	7/24/2025 6:01:47 PM	
+Unknown	R25WEEK8META			4.672	mg/L	48	7/24/2025 6:12:48 PM	
+Unknown	L25WEEK9PML			4.158	mg/L	49	7/24/2025 6:23:44 PM	
+Unknown	L25WEEK8HYPO			3.854	mg/L	50	7/24/2025 6:34:52 PM	
+Unknown	T25WEEK8PML			7.486	mg/L	51	7/24/2025 6:45:58 PM	
+Unknown	L25WEEK8META			3.715	mg/L	52	7/24/2025 6:57:05 PM	
+Unknown	L25WEEK9HYPO			3.997	mg/L	53	7/24/2025 7:07:57 PM	
+Unknown	L25WEEK8META dup			3.688	mg/L	52	7/24/2025 7:19:15 PM	
+Unknown	blank			0.1609	mg/L	67	7/24/2025 7:32:28 PM	
+Unknown	blank			0.1446	mg/L	67	7/24/2025 7:43:31 PM	
+Unknown	2ppm check DOC			2.011	mg/L	68	7/24/2025 7:54:31 PM	
+Unknown	20ppm DOC ICV			20.00	mg/L	66	7/24/2025 8:06:49 PM	
+Unknown	L25WEEK9META			3.605	mg/L	70	7/24/2025 8:17:45 PM	
+Unknown	T25WEEK8META			7.893	mg/L	71	7/24/2025 8:28:58 PM	
+Unknown	7_14_25 Blank			0.4583	mg/L	72	7/24/2025 8:39:39 PM	
+Unknown	7_7_25 Blank			0.5051	mg/L	73	7/24/2025 8:52:12 PM	
+Unknown	T25WEEK9META			7.897	mg/L	74	7/24/2025 9:03:21 PM	
+Unknown	T25WEEK8HYPO			11.33	mg/L	75	7/24/2025 9:14:46 PM	
+Unknown	YR_21Jul25_Veg_DOC			5.544	mg/L	76	7/24/2025 9:26:03 PM	
+Unknown	YR_21Jul25_Clear_DOC			5.514	mg/L	77	7/24/2025 9:37:11 PM	
+Unknown	BR_22Jul25_D_DOC			5.864	mg/L	78	7/24/2025 9:48:24 PM	
+Unknown	BR_22Jul25_U_DOC			6.077	mg/L	79	7/24/2025 9:59:31 PM	
+Unknown	BR_22Jul25_D_DOC dup			5.849	mg/L	78	7/24/2025 10:10:50 PM	
+Unknown	blank			0.1510	mg/L	69	7/24/2025 10:21:35 PM	
+Unknown	blank			0.1120	mg/L	69	7/24/2025 10:30:15 PM	
+Unknown	2ppm check DOC			2.020	mg/L	68	7/24/2025 10:43:52 PM	
+Unknown	20ppm DOC ICV			19.95	mg/L	66	7/24/2025 10:56:01 PM	
+Unknown	SC_22Jul25_DOC_1			3.950	mg/L	80	7/24/2025 11:07:11 PM	
+Unknown	SC_22Jul25_DOC_3			4.160	mg/L	81	7/24/2025 11:20:27 PM	
+Unknown	SC_22Jul25_DOC_2			4.357	mg/L	82	7/24/2025 11:33:45 PM	
+Unknown	P25-203-T0-V			13.99	mg/L	83	7/24/2025 11:45:18 PM	
+Unknown	P25-199-O9-V			5.614	mg/L	84	7/24/2025 11:58:51 PM	
+Unknown	P25-201-S9-V			8.790	mg/L	85	7/25/2025 12:10:12 AM	
+Unknown	P25-199-O9-V dup			5.693	mg/L	84	7/25/2025 12:21:47 AM	
+Unknown	blank			0.1395	mg/L	64	7/25/2025 12:34:31 AM	
+Unknown	blank			0.1347	mg/L	65	7/25/2025 12:44:57 AM	
+Unknown	2ppm check DOC			2.034	mg/L	92	7/25/2025 12:58:21 AM	
+Unknown	20ppm DOC ICV			18.91	mg/L	93	7/25/2025 1:10:07 AM	
+Unknown	blank			0.2118	mg/L	67	7/25/2025 1:22:50 AM	
+Unknown	blank			0.1218	mg/L	69	7/25/2025 1:33:08 AM	
