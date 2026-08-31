@@ -1,7 +1,5 @@
 #Tuesday Lake DLM for identifing critical transitions
-
-#### Fit to the HF data #####
-# hope is that this matches more closely to the passage times #
+# fit to just the morning average, uncorrected sonde chlorophyll
 
 library(tidyverse)
 library(ggpubr)

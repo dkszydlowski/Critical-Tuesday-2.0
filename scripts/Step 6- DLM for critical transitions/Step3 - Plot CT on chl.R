@@ -1,23 +1,14 @@
 
 #### Plot critical transitions over daily chlorophyll time series ####
+# this script is just used to inspect results
+
 library(tidyverse)
 library(ggpubr)
 
-# ============================================================
-# ASSUMPTIONS - please check/adjust:
-# 1. Paul's CT DLM results were saved analogously to Tuesday's,
-#    e.g. "./results/Paul CT DLM.csv" -- adjust if different
-# 2. Paul's raw HF data mirrors Tuesday's naming/structure,
-#    e.g. "./data/formatted data/HF data/Predicted Paul HYLB on Manual Scale log-trans NOISY ARIMA.csv"
-# 3. Using delta = 0.90 as the "best" discount factor for plotting,
-#    matching your "plotting checks" section -- change chosen_delta below if you want a different one
-# 4. A "critical transition" = eigenvalue crossing from < 1 to >= 1
-#    (matches your geom_hline(yintercept = 1) annotation in the original script)
-# ============================================================
 
 chosen_delta <- 0.90
 
-# ---- helper: build daily morning-average chl for one lake, all years ----
+# daily average morning chlorophyll function 
 build_daily_mean <- function(hf_path, years) {
   raw <- read.csv(hf_path) %>%
     mutate(datetime = ymd_hms(datetime))
@@ -39,7 +30,7 @@ build_daily_mean <- function(hf_path, years) {
   bind_rows(daily_list)
 }
 
-# ---- helper: identify critical transition days from DLM results ----
+# identify critical transitions from AR coefficient
 find_transitions <- function(ct_results, delta_val) {
   ct_results %>%
     filter(delta == delta_val) %>%
@@ -56,7 +47,7 @@ find_transitions <- function(ct_results, delta_val) {
 
 years <- c(2013, 2014, 2015, 2024, 2025)
 
-# ================= Tuesday =================
+##### Tuesday #####
 tues_ct <- read.csv("./results/Tuesday CT DLM.csv")
 tues_daily <- build_daily_mean(
   "./data/formatted data/HF data/Predicted Tuesday HYLB on Manual Scale log-trans NOISY ARIMA.csv",
@@ -81,7 +72,7 @@ tues.ct.plot <- ggplot(tues_daily, aes(x = doy, y = chl_mean)) +
 tues.ct.plot
 
 
-# ================= Paul =================
+##### Paul ######
 # adjust paths below if Paul's files differ in naming
 paul_ct <- read.csv("./results/Paul CT DLM.csv")
 paul_daily <- build_daily_mean(
@@ -107,34 +98,6 @@ paul.ct.plot <- ggplot(paul_daily, aes(x = doy, y = chl_mean)) +
 paul.ct.plot
 
 
-# ================= combined =================
+# combined 
 ggarrange(tues.ct.plot, paul.ct.plot, nrow = 1, ncol = 2)
 
-
-
-
-#### Time between nutrient addition onset and first critical transition ####
-library(dplyr)
-
-# ---- nutrient addition onset DOY per year, from your table ----
-# DOY of additions: 154-238 (2013), 153-241 (2014), 152-240 (2015), 162-233 (2024), 154-198 (2025)
-nutrient_onset <- data.frame(
-  Year = c(2013, 2014, 2015, 2024, 2025),
-  onset_doy = c(154, 153, 152, 162, 154)
-)
-
-# ---- first critical transition per year (using tues_transitions from the previous script) ----
-first_transition <- tues_transitions %>%
-  group_by(Year) %>%
-  slice_min(doy, n = 1, with_ties = FALSE) %>%
-  ungroup() %>%
-  rename(first_transition_doy = doy)
-
-# ---- combine and calculate days between onset and first transition ----
-onset_to_transition <- nutrient_onset %>%
-  left_join(first_transition, by = "Year") %>%
-  mutate(
-    days_to_transition = first_transition_doy - onset_doy
-  )
-
-onset_to_transition

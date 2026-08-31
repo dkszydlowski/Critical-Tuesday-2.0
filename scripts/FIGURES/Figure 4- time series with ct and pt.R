@@ -43,24 +43,24 @@ dat0 = dat0 %>%
 # Load DDJ data and apply to dataframe
 load('./results/DDJ results Paul ARIMA-corrected data.Rdata')
 
-low = xeq2[1]
-thresh = xeq2[2]
-high = xeq2[3]
+low.L = xeq2[1]
+thresh.L = xeq2[2]
+high.L = xeq2[3]
 
 
 dat0  = dat0 %>% 
-  mutate(basin = case_when(stdlevel > thresh~"high-pigment",
-                           stdlevel < thresh~"low-pigment")) %>% 
-  mutate(equilibria = case_when(stdlevel > thresh~high,
-                                stdlevel < thresh~low))
+  mutate(basin = case_when(stdlevel > thresh.L~"high-pigment",
+                           stdlevel < thresh.L~"low-pigment")) %>% 
+  mutate(equilibria = case_when(stdlevel > thresh.L~high.L,
+                                stdlevel < thresh.L~low.L))
 
 
 
 
 dat0 = dat0 %>%
   arrange(year, doy) %>%
-  mutate(basin = case_when(stdlevel > thresh ~ "high-pigment",
-                           stdlevel < thresh ~ "low-pigment")) %>%
+  mutate(basin = case_when(stdlevel > thresh.L ~ "high-pigment",
+                           stdlevel < thresh.L ~ "low-pigment")) %>%
   # create a group that breaks line at color changes
   group_by(year) %>%
   mutate(group = cumsum(basin != lag(basin, default = first(basin)))) %>%
@@ -69,7 +69,7 @@ dat0 = dat0 %>%
 ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
   geom_line(size = 1, alpha = 0.75) +
   geom_line(aes(x = doy, y = equilibria), size = 2, color = "black") +
-  geom_hline(yintercept = thresh, linetype = "dashed") +
+  geom_hline(yintercept = thresh.L, linetype = "dashed") +
   scale_color_manual(values = c("high-pigment" = "#b4c187", "low-pigment" = "#44729C")) +
   facet_wrap(~year) +
   theme_classic() +
@@ -96,7 +96,7 @@ ct = read.csv("./results/Paul CT DLM.csv") %>%
 ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
   geom_line(size = 1, alpha = 0.75) +
   geom_line(aes(x = doy, y = equilibria), size = 2, color = "black") +
-  geom_hline(yintercept = thresh, linetype = "dashed") +
+  geom_hline(yintercept = thresh.L, linetype = "dashed") +
   # Add vertical lines for eigenvalues > 1
   geom_vline(
     data = ct %>% filter(eigvals > 1),
@@ -113,7 +113,8 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
 
 
 dat0.L = dat0 %>% 
-  mutate(lake = "Paul")
+  mutate(lake = "Paul",
+         threshold = thresh.L)
 
 ct.L = ct %>% 
   mutate(lake = "Paul")
@@ -235,7 +236,8 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
 
 
 dat0.T = dat0 %>% 
-  mutate(lake = "Tuesday")
+  mutate(lake = "Tuesday",
+         threshold = thresh)
 
 ct.T = ct %>% 
   mutate(lake = "Tuesday")
@@ -275,8 +277,10 @@ ggplot(
     linewidth = 1.5) +
   
   geom_hline(
-    yintercept = thresh,
-    linetype = "dashed") +
+    data = dat0.all,
+    aes(yintercept = threshold),
+    linetype = "dashed"
+  ) +
   
   geom_vline(
     data = ct.all,
@@ -337,8 +341,11 @@ ggplot(
             color = "black",
             linewidth = 1.5) +
   
-  geom_hline(yintercept = thresh,
-             linetype = "dashed") +
+  geom_hline(
+    data = dat0.all,
+    aes(yintercept = threshold),
+    linetype = "dashed"
+  ) +
   
   geom_vline(data = ct.all,
              aes(xintercept = doy),

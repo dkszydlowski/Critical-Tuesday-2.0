@@ -1,5 +1,5 @@
 # bootstrap Direct Counts of Passage times From bootstraps of DLM and DDJ
-# It can be run anytime after Step 11, the DDJ bootstrap
+
 # SRC 2026-02-07
 
 rm(list = ls())

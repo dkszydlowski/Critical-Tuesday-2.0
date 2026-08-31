@@ -1,4 +1,5 @@
 ###### test passage times to see which are statistically different ######
+# this code is supplemental and not necessary to the main analysis
 
 library(tidyverse)
 library(dplyr)

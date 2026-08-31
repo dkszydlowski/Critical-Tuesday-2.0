@@ -1,7 +1,7 @@
 #Paul Lake DLM for identifing critical transitions
+# fit to just the morning average, uncorrected sonde chlorophyll
 
-#### Fit to the HF data #####
-# hope is that this matches more closely to the passage times #
+
 
 library(tidyverse)
 library(ggpubr)

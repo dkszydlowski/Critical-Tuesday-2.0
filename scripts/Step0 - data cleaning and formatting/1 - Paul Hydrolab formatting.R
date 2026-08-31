@@ -1,3 +1,7 @@
+#### script for gathering high frequency hydrolab data for fitting Langevin models
+# for Paul Lake, 2013, 2014, 2015, 2024, 2025
+
+
 library(tidyverse)
 
 

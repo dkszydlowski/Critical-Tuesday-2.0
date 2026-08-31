@@ -27,6 +27,8 @@ load("./results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOI
 ### try to make a separate dataset that we can run through DDJ, properly stacked
 
 # thin standard level and tstep to get rid of autocorrelation
+# this step is iterative, depending on AR order of the data from code at the bottom of the script
+# because the data are AR(3), we thin to every 3rd point
 aropt = 3
 idx <- seq(1, length(stdlevel), by = aropt)
 stdlevel = stdlevel[idx]
@@ -95,6 +97,12 @@ DDJ_prepped <- rbind(DDJ13, DDJ14, DDJ15, DDJ24, DDJ25) %>%
 
 write.csv(DDJ_prepped, "./data/formatted data/HF data/ARIMA Tuesday stacked data for global DDJ 098 NOISY THINNED.csv", row.names = FALSE) # this is really 098
 
+
+
+
+
+
+
 ### check adf and auto.arima
 
 dx <- DDJ_prepped$dx
@@ -114,29 +122,26 @@ lagopt_x0 <- arimaorder(arfit_x0)
 print("AR structure of x0:")
 print(lagopt_x0)
 
+# check results using adf.test
 ADF.result = adf.test(x0)
 pvalue = ADF.result$p.value
 print(pvalue)
 
-
-aropt = unname(lagopt_x0[1])  # save optimal AR order
-# if optimal lag is 0 then data are uncorrelated, use original data
-aropt = ifelse(aropt==0,1,aropt)  
-
-# subsample Xvar0 according to lagopt
-ikeep = seq(1,n,by=aropt)
-Xvar = x0[ikeep]
-Tstep = Tstep0[ikeep]
-nx=length(Xvar)
-
-# check AR order of thin data
-arfit1 = auto.arima(Xvar)
-lagopt1 = arimaorder(arfit1)
-print('',quote=F)
-print('optimal order of thinned data using autoarima() and arimaorder()',quote=F)
-print(lagopt1)
-
-
-
-
-
+#
+# aropt = unname(lagopt_x0[1])  # save optimal AR order
+# # if optimal lag is 0 then data are uncorrelated, use original data
+# aropt = ifelse(aropt==0,1,aropt)  
+# 
+# # subsample Xvar0 according to lagopt
+# ikeep = seq(1,n,by=aropt)
+# Xvar = x0[ikeep]
+# Tstep = Tstep0[ikeep]
+# nx=length(Xvar)
+# 
+# # check AR order of thin data
+# arfit1 = auto.arima(Xvar)
+# lagopt1 = arimaorder(arfit1)
+# print('',quote=F)
+# print('optimal order of thinned data using autoarima() and arimaorder()',quote=F)
+# print(lagopt1)
+# 

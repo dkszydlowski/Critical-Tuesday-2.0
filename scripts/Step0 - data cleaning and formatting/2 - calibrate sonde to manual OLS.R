@@ -5,6 +5,8 @@
 ## in this script, we corrected the data using ordinary least squares regression.
 ## in a different script, we corrected the data while accounting for autocorrelation uing ARIMA models
 
+# the ARIMA script is what should be used for final analysis, but this version gives similar results
+
 
 library(tidyverse)
 library(ggpmisc)
@@ -268,7 +270,7 @@ hf = read.csv("./data/formatted data/HF data/Paul HYLB 2013-2015 2024 2025 log-t
   filter(DoY < 244)
 
 # plot the data
-ggplot(hf, aes(x = DoY, y = log10(Chl_HYLB)))+
+ggplot(hf, aes(x = DoY, y = (Chl_HYLB)))+
   geom_line()+
   facet_wrap(~Year)
 
