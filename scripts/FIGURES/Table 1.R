@@ -14,6 +14,7 @@ knc.mean = data %>%
   mutate(kNC = kPAR - 0.0177*Manual_Chl) %>% 
   filter((Lake == "T" | Lake == "L") & kNC > 0) %>% 
   group_by(Year, Lake) %>% 
+  filter(!(is.na(Ztherm))) %>% # exclude interpolated values
   summarize(mean.kNC = mean(kNC, na.rm = TRUE),
             median.kNC = median(kNC, na.rm = TRUE),
             sd.kNC = sd(kNC, na.rm = TRUE),

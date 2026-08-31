@@ -13,6 +13,7 @@ library(patchwork)
 
 
 
+
 #### FIGURE S1 - plot kNC boxplots for both Paul and Tuesday ####
 
 data = read.csv("./data/formatted data/simulation model inputs 2013-2015 2024 2025 v4.csv") %>% 
@@ -75,12 +76,182 @@ ggarrange(DOC.comp, thermo.comp, PAR.comp, kNC.comp, common.legend = TRUE, nrow 
 
 
 
+png("./figures/Supplemental figures/Figure S1 lake characteristics.png", res = 600, height = 120, width = 225, units = "mm") 
+
+ggarrange(DOC.comp, thermo.comp, PAR.comp, kNC.comp, common.legend = TRUE, nrow = 2, ncol = 2)
+
+dev.off()
 
 
 
 
+###### Figure S2 - compare kPAR to staining and chl ######
 
-#### FIGURES S2 and S3 - Plot weekly zooplankton for both lakes ####
+
+#### CHECK WEEKLY CORRELATIONS ####
+# yearly averages are not resolved enough to get an effect
+
+
+data = read.csv("./data/formatted data/simulation model inputs 2013-2015 2024 2025 v4.csv") %>% 
+  filter(Lake %in% c("L", "T") & !is.na(Ztherm)) %>% 
+  mutate(kNC = kPAR - 0.0177*Manual_Chl)
+
+
+#### compare kPAR to color, g440 #####
+
+# read in the color data
+
+color = read.csv("./data/formatted data/cascade_carbon_v05.csv") %>% 
+  filter(lakeid %in% c("L", "T"), year4 %in% c(2013, 2014, 2015, 2024, 2025) & depth == "PML") %>% 
+  select(lakeid, year4, daynum, absorbance) %>% 
+  rename(Lake = lakeid, DOY = daynum, Year = year4)
+
+data = data %>% 
+  left_join(color, by = c("Lake", "Year", "DOY"))
+
+# calculate g440 and re-level
+data = data %>% 
+  mutate(g440 = 2.303*absorbance/0.1) %>% 
+  mutate(Lake = factor(Lake, levels = c("T", "L")))
+
+# compare to color
+comp.color = ggplot(data %>% filter(!is.na(kPAR)), aes(x = g440, y = kPAR, color = Lake)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  stat_poly_eq(
+    formula = y ~ x,
+    aes(label = ..rr.label..),
+    parse = TRUE,
+    size = 4,
+    label.x = 0.05,
+    label.y = 0.95,
+    color = "black"
+  ) +
+  theme_bw() +
+  scale_color_manual(values = c("L" = "#44729C", "T" = "#755A42")) +
+  facet_wrap2(
+    ~ Lake,
+    scales = "free",
+    strip = strip_themed(
+      background_x = elem_list_rect(
+        fill = c(
+          "T" = "#755A42",
+          "L" = "#44729C"
+        ),
+        colour = NA
+      ),
+      text_x = elem_list_text(
+        color = "white",
+        size = 10
+      )
+    ),
+    labeller = labeller(
+      Lake = c(
+        "T" = "Tuesday (experimental)",
+        "L" = "Paul (reference)"
+      )
+    )
+  ) +
+  labs(x = "g440 (m-1)", y = "kPAR") +
+  theme(legend.position = "none")
+
+
+
+# compare to chl
+
+comp.chl = ggplot(data %>% filter(!is.na(kPAR)), aes(x = Manual_Chl, y = kPAR, color = Lake)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  stat_poly_eq(
+    formula = y ~ x,
+    aes(label = ..rr.label..),
+    parse = TRUE,
+    size = 4,
+    label.x = 0.95,
+    label.y = 0.95,
+    color = "black"
+  ) +
+  theme_bw() +
+  scale_color_manual(values = c("L" = "#44729C", "T" = "#755A42")) +
+  facet_wrap2(
+    ~ Lake,
+    scales = "free",
+    strip = strip_themed(
+      background_x = elem_list_rect(
+        fill = c(
+          "T" = "#755A42",
+          "L" = "#44729C"
+        ),
+        colour = NA
+      ),
+      text_x = elem_list_text(
+        color = "white",
+        size = 10
+      )
+    ),
+    labeller = labeller(
+      Lake = c(
+        "T" = "Tuesday (experimental)",
+        "L" = "Paul (reference)"
+      )
+    )
+  ) +
+  labs(x = "Chlorophyll (ug/L)", y = "kPAR") +
+  theme(legend.position = "none")
+
+
+png("./figures/Supplemental figures/Figure S2 kPAR.png", res = 600, height = 150, width = 150, units = "mm") 
+
+ggarrange(comp.color, comp.chl, nrow = 2, ncol = 1)
+
+dev.off()
+
+
+
+### compare chl to g440
+
+ggplot(data %>% filter(!is.na(kPAR)), aes(x = log10(Manual_Chl), color = Lake)) +
+  geom_point(size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  stat_poly_eq(
+    formula = y ~ x,
+    aes(label = ..rr.label..),
+    parse = TRUE,
+    size = 4,
+    label.x = 0.95,
+    label.y = 0.95,
+    color = "black"
+  ) +
+  theme_bw() +
+  scale_color_manual(values = c("L" = "#44729C", "T" = "#755A42")) +
+  facet_wrap2(
+    ~ Lake,
+    scales = "free",
+    strip = strip_themed(
+      background_x = elem_list_rect(
+        fill = c(
+          "T" = "#755A42",
+          "L" = "#44729C"
+        ),
+        colour = NA
+      ),
+      text_x = elem_list_text(
+        color = "white",
+        size = 10
+      )
+    ),
+    labeller = labeller(
+      Lake = c(
+        "T" = "Tuesday (experimental)",
+        "L" = "Paul (reference)"
+      )
+    )
+  ) +
+  labs(x = "Chlorophyll (ug/L)", y = "g440") +
+  theme(legend.position = "none")
+
+
+#### FIGURES S3 and S4 - Plot weekly zooplankton for both lakes ####
 
 zoops = read.csv("./data/formatted data/cascade_zooplankton_v07_DTH.csv")
 
@@ -167,14 +338,14 @@ week.daph.bio = ggplot(zoops.relevant  %>% filter(taxon_name == "Daphnia"), aes(
         legend.text = element_text(size = 12))
 
 
-png("./figures/Supplemental figures/Figure S2 zoop boxplots.png", res = 600, height = 120, width = 225, units = "mm") 
+png("./figures/Supplemental figures/Figure S3 zoop boxplots.png", res = 600, height = 120, width = 225, units = "mm") 
 
 ggarrange(week.zoop.bio, week.daph.bio, nrow = 1, ncol = 2, common.legend = TRUE)
 
 dev.off()
 
 
-png("./figures/Supplemental figures/Figure S3 zoop histograms.png", res = 600, height = 120, width = 225, units = "mm") 
+png("./figures/Supplemental figures/Figure S4 zoop histograms.png", res = 600, height = 120, width = 225, units = "mm") 
 
 
 ggplot(zoops.relevant, aes(x = log10(biomass), fill = group_code)) + 
@@ -219,7 +390,7 @@ dev.off()
 
 
 
-#### FIGURES S4 and S5 - ARIMA fitted vs observed #####
+#### FIGURES S5 and S6 - ARIMA fitted vs observed #####
 t.arima = read.csv("./results/ARIMA model fits/Tuesday ARIMA fits.csv") %>% 
   mutate(lake = "T")
 L.arima = read.csv("./results/ARIMA model fits/Paul ARIMA fits.csv")
@@ -227,7 +398,7 @@ L.arima = read.csv("./results/ARIMA model fits/Paul ARIMA fits.csv")
 all.arima = rbind(t.arima, L.arima) %>% 
   mutate(lake = factor(lake, levels = c("T", "L")))
 
-png("./figures/Supplemental figures/Figure S4 ARIMA fits.png", res = 600, height = 100, width = 173, units = "mm") 
+png("./figures/Supplemental figures/Figure S5 ARIMA fits.png", res = 600, height = 100, width = 173, units = "mm") 
 
 
 ggplot(all.arima, aes(x = original, y = predicted, color = lake)) +
@@ -295,7 +466,7 @@ all.corrected = rbind(l.corrected, t.corrected)
 all.corrected = all.corrected %>% 
   mutate(lake = factor(lake, levels = c("T", "L")))
 
-png("./figures/Supplemental figures/Figure S5 ARIMA manual and corrected.png", res = 600, height = 100, width = 173, units = "mm") 
+png("./figures/Supplemental figures/Figure S6 ARIMA manual and corrected.png", res = 600, height = 100, width = 173, units = "mm") 
 
 ggplot(all.corrected, aes(x = DoY, y = corrected.sonde, color = lake)) +
   geom_line(size = 0.3) +
@@ -346,7 +517,7 @@ dev.off()
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------#
-#### FIGURES S6 - S10: PLOT DLM RESULTS #####
+#### FIGURES S7 - S11: PLOT DLM RESULTS #####
 
 
 load('./results/DLMresult_HYLB_Tuesday_ALL_Chl_Predicted to Manual Scale 098 NOISY ARIMA.Rdata')
@@ -380,7 +551,7 @@ all.dlm = bind_rows(dlm.results.tuesday, dlm.results.paul) %>%
   mutate(lake = factor(lake, levels = c("T", "L")))   # Tuesday row on top
 
 
-png("./figures/Supplemental figures/Figure S6 2013 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+png("./figures/Supplemental figures/Figure S7 2013 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
 
 
 # combined plot: Tuesday & Paul side by side, all years
@@ -418,7 +589,7 @@ dev.off()
 
 
 
-png("./figures/Supplemental figures/Figure S7 2014 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+png("./figures/Supplemental figures/Figure S8 2014 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
 
 
 # combined plot: Tuesday & Paul side by side, all years
@@ -455,7 +626,7 @@ dev.off()
 
 
 
-png("./figures/Supplemental figures/Figure S8 2015 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+png("./figures/Supplemental figures/Figure S9 2015 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
 
 
 # combined plot: Tuesday & Paul side by side, all years
@@ -492,7 +663,7 @@ dev.off()
 
 
 
-png("./figures/Supplemental figures/Figure S9 2024 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+png("./figures/Supplemental figures/Figure S10 2024 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
 
 
 # combined plot: Tuesday & Paul side by side, all years
@@ -530,7 +701,7 @@ dev.off()
 
 
 
-png("./figures/Supplemental figures/Figure S10 2025 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
+png("./figures/Supplemental figures/Figure S11 2025 DLM fit.png", res = 600, height = 150, width = 250, units = "mm") 
 
 
 # combined plot: Tuesday & Paul side by side, all years
@@ -567,7 +738,7 @@ dev.off()
 
 
 
-#### FIGURE S11 - actual DDJ results ####
+#### FIGURE S12 - actual DDJ results ####
 load('./results/DDJ results Tuesday ARIMA-corrected data.Rdata')
 
 ddj.result = data.frame(D1, D2, avec)
@@ -690,7 +861,7 @@ EP.plot.L = ggplot(EP.all.L, aes(x = chl, y = EP))+
   labs(x = "Chlorophyll, standardized level", y = "")+
   ylim(0, 2.5)
 
-png("./figures/Supplemental figures/Figure S11 DDJ models and EP.png", res = 600, height = 200, width = 200, units = "mm") 
+png("./figures/Supplemental figures/Figure S12 DDJ models and EP.png", res = 600, height = 200, width = 200, units = "mm") 
 
 
 ggarrange(nrow = 2, ncol = 2, DDJ.plot, DDJ.plot.L, EP.plot, EP.plot.L)
@@ -701,7 +872,7 @@ dev.off()
 
 
 
-#### FIGURE S12 - Full distributions of passage times #####
+#### FIGURE S13 - Full distributions of passage times #####
 
 
 ### Tuesday 
@@ -733,7 +904,7 @@ ptimes = ggarrange(lb.plot, rb.plot, align = "h")
 rb.plot = ggplot(pt.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
   geom_point()+
-  labs(y = "", x = "Year", title = "high-pigment") +
+  labs(y = "", x = "Year", title = "high-chlorophyl") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = green_palette)+
   theme_classic()+
@@ -765,7 +936,7 @@ rb.plot = ggplot(pt.all %>% filter(basin == "right"), aes(x = as.factor(year), y
 lb.plot = ggplot(pt.all %>% filter(basin == "left"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
   geom_point()+
-  labs(y = "passage time (days)", x = "Year", title = "low-pigment") +
+  labs(y = "passage time (days)", x = "Year", title = "low-chlorophyll") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = rev(brown_palette))+
   theme_classic()+
@@ -892,7 +1063,7 @@ ptimes = ggarrange(lb.plot, rb.plot, align = "h")
 rb.plot = ggplot(pt.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
   geom_point()+
-  labs(y = "", x = "Year", title = "high-pigment") +
+  labs(y = "", x = "Year", title = "high-chlorophyl") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = green_palette)+
   theme_classic()+
@@ -924,7 +1095,7 @@ rb.plot = ggplot(pt.all %>% filter(basin == "right"), aes(x = as.factor(year), y
 lb.plot = ggplot(pt.all %>% filter(basin == "left"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
   geom_point()+
-  labs(y = "", x = "Year", title = "low-pigment") +
+  labs(y = "", x = "Year", title = "low-chlorophyll") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = rev(blue_palette))+
   theme_classic()+
@@ -1015,7 +1186,7 @@ paul.pt = ggarrange(banner, pt.grid, nrow = 2, heights = c(0.08, 1))
 
 
 # combine Paul and Tuesday plots
-png("./figures/Supplemental figures/Figure S12 Full PT.png", res = 600, height = 100, width = 250, units = "mm") 
+png("./figures/Supplemental figures/Figure S13 Full PT.png", res = 600, height = 150, width = 250, units = "mm") 
 
 ggarrange(tues.pt, paul.pt, nrow = 1, ncol = 2)
 
@@ -1026,7 +1197,7 @@ dev.off()
 
 
 
-#### FIGURE S13 - passage times compared to nutrient loading for Tuesday #####
+#### FIGURE S14 - passage times compared to nutrient loading for Tuesday #####
 
 t25 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2025 global 2026-06-18 THINNED.csv")
 t24 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2024 global 2026-06-18 THINNED.csv")
@@ -1077,7 +1248,7 @@ ptandp = ggplot(pt.mean, aes(x = max.P, y = (mean.days), color = basin)) +
       text_x = elem_list_text(color = "white", size = 10)
     ),
     labeller = labeller(
-      basin = c(left = "low-pigment", right = "high-pigment")
+      basin = c(left = "low-chlorophyll", right = "high-chlorophyl")
     )
   ) +
   scale_color_manual(values = c(left = "#755A42",
@@ -1103,7 +1274,7 @@ banner = ggplot() +
            color = "black", size = 3.5) +
   xlim(0, 1) + ylim(0, 1)
 
-png("./figures/Supplemental figures/Figure S13 PT and P added.png", res = 600, height = 80, width = 140, units = "mm") 
+png("./figures/Supplemental figures/Figure S14 PT and P added.png", res = 600, height = 80, width = 140, units = "mm") 
 
 ggarrange(banner, ptandp, nrow = 2, heights = c(0.08, 1))
 
@@ -1113,7 +1284,7 @@ dev.off()
                                                                                                                                     
 
 
-#### FIGURE S14 - passage times compared to mean zooplankton biomass #####
+#### FIGURE S15 - passage times compared to mean zooplankton biomass #####
 
 t25 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2025 global 2026-06-18 THINNED.csv")
 t24 = read.csv("./results/passage times/Tuesday ARIMA-corrected 2024 global 2026-06-18 THINNED.csv")
@@ -1174,15 +1345,15 @@ pt.mean = pt.mean %>%
 
 
 lake_basin_colors = c(
-  "T_left"  = "#755A42",  # Tuesday low-pigment: brown
-  "T_right" = "#5a6b3a",  # Tuesday high-pigment: green
-  "L_left"  = "#44729C",  # Paul low-pigment: blue
-  "L_right" = "#b4c187"   # Paul high-pigment: light green
+  "T_left"  = "#755A42",  # Tuesday low-chlorophyll: brown
+  "T_right" = "#5a6b3a",  # Tuesday high-chlorophyl: green
+  "L_left"  = "#44729C",  # Paul low-chlorophyll: blue
+  "L_right" = "#b4c187"   # Paul high-chlorophyl: light green
 )
 
 
 
-png("./figures/Supplemental figures/Figure S14 PT and zoops.png", res = 600, height = 130, width = 130, units = "mm") 
+png("./figures/Supplemental figures/Figure S15 PT and zoops.png", res = 600, height = 130, width = 130, units = "mm") 
 
 ggplot(pt.mean, aes(x = mean.biomass, y = mean.days, color = lake_basin)) +
   geom_point(size = 3) +
@@ -1209,7 +1380,7 @@ ggplot(pt.mean, aes(x = mean.biomass, y = mean.days, color = lake_basin)) +
       text_y = elem_list_text(color = "white", size = 12)
     ),
     labeller = labeller(
-      basin = c(left = "low-pigment", right = "high-pigment"),
+      basin = c(left = "low-chlorophyll", right = "high-chlorophyl"),
       lake = c(T = "Tuesday (experimental)", L = "Paul (reference)")
     )
   ) +
@@ -1228,7 +1399,7 @@ ggplot(pt.mean, aes(x = mean.biomass, y = mean.days, color = lake_basin)) +
 dev.off()
 
 #=========================================================================================================================#
-#### FIGURE S15- plotting the bootstrapped DDJ and EP #####
+#### FIGURE S16- plotting the bootstrapped DDJ and EP #####
 
 ## TUESDAY ##
 
@@ -1567,7 +1738,7 @@ EP.boot.L = ggplot(EP.all, aes(x = chl_mean, y = EP_mean))+
 
 
 
-png("./figures/Supplemental figures/Figure S15 Bootstrapped DDJ models and EP.png", res = 600, height = 200, width = 200, units = "mm") 
+png("./figures/Supplemental figures/Figure S16 Bootstrapped DDJ models and EP.png", res = 600, height = 200, width = 200, units = "mm") 
 
 
 ggarrange(DDJboot, DDJboot.L, EP.boot, EP.boot.L, nrow = 2, ncol = 2, align = "v")
@@ -1582,7 +1753,7 @@ dev.off()
 
 
 
-#### FIGURE S16 - Bootstrapped passage times compared to kNC ####
+#### FIGURE S17 - Bootstrapped passage times compared to kNC ####
 
 tues.pt.boot = get(load('./results/bootstrapped results/Passage_times_boot_Tuesday 1000.Rdata')) %>% 
   mutate(lake = "T")
@@ -1606,6 +1777,7 @@ data = read.csv("./data/formatted data/simulation model inputs 2013-2015 2024 20
 data.mean = data %>% 
   mutate(kNC = kPAR - 0.0177*Manual_Chl) %>% 
   filter((Lake == "T" | Lake == "L") & kNC > 0) %>% 
+  filter(!is.na(Ztherm)) %>% 
   group_by(Year, Lake) %>% 
   summarize(mean.kNC = mean(kNC, na.rm = TRUE),
             median.kNC = median(kNC, na.rm = TRUE),
@@ -1648,7 +1820,7 @@ mean.pass.boot.long <- mean.pass.boot %>%
 
 rb.plot.t = ggplot(all.pt.boot %>% filter(lake == "T"), aes(x = as.factor(year), y = (mean.right)/(24*60), fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
-  labs(y = "", x = "Year", title = "high-pigment") +
+  labs(y = "", x = "Year", title = "high-chlorophyl") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = (green_palette))+
   theme_classic()+
@@ -1678,7 +1850,7 @@ rb.plot.t = ggplot(all.pt.boot %>% filter(lake == "T"), aes(x = as.factor(year),
 
 lb.plot.t = ggplot(all.pt.boot %>% filter(lake == "T"), aes(x = as.factor(year), y = (mean.left)/(24*60), fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
-  labs(y = "mean passage time (days)", x = "Year", title = "low-pigment") +
+  labs(y = "mean passage time (days)", x = "Year", title = "low-chlorophyll") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = (brown_palette))+
   theme_classic()+
@@ -1729,7 +1901,7 @@ pt.grid.t = ggarrange(lb.plot.t, rb.plot.t, nrow = 1, ncol = 2)
 
 rb.plot.l = ggplot(all.pt.boot %>% filter(lake == "L"), aes(x = as.factor(year), y = (mean.right)/(24*60), fill = factor(year))) +
   geom_boxplot(alpha = 0.8, fill = "#b4c187")+
-  labs(y = "", x = "Year", title = "high-pigment") +
+  labs(y = "", x = "Year", title = "high-chlorophyl") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   theme_classic()+
   scale_y_log10(limits = c(0.1, 30))+
@@ -1758,7 +1930,7 @@ rb.plot.l = ggplot(all.pt.boot %>% filter(lake == "L"), aes(x = as.factor(year),
 
 lb.plot.l = ggplot(all.pt.boot %>% filter(lake == "L"), aes(x = as.factor(year), y = (mean.left)/(24*60), fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
-  labs(y = "", x = "Year", title = "low-pigment") +
+  labs(y = "", x = "Year", title = "low-chlorophyll") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = blue_palette)+
   theme_classic()+
@@ -1866,8 +2038,8 @@ paul.pt.l = ggarrange(banner, pt.grid.l, nrow = 2, heights = c(0.08, 1))
                   force = 2, min.segment.length = 0, segment.color = NA) +
   # nudge_y = ifelse(pt.mean$Year == 2025 & pt.mean$basin == "right", -0.1, 0)) +
   facet_wrap(~basin,
-             labeller = as_labeller(c(left = "low-pigment",
-                                      right = "high-pigment"))) +
+             labeller = as_labeller(c(left = "low-chlorophyll",
+                                      right = "high-chlorophyl"))) +
   scale_fill_manual(values = c(left =   "#44729C",
                                right = "#b4c187")) +
   
@@ -1937,8 +2109,8 @@ paul.pt.l = ggarrange(banner, pt.grid.l, nrow = 2, heights = c(0.08, 1))
                    force = 2, min.segment.length = 0, segment.color = NA) +
    # nudge_y = ifelse(pt.mean$Year == 2025 & pt.mean$basin == "right", -0.1, 0)) +
    facet_wrap(~basin,
-              labeller = as_labeller(c(left = "low-pigment",
-                                       right = "high-pigment"))) +
+              labeller = as_labeller(c(left = "low-chlorophyll",
+                                       right = "high-chlorophyl"))) +
    scale_fill_manual(values = c(left =   "#755A42",
                                 right = "#5a6b3a")) +
    
@@ -2006,7 +2178,7 @@ paul.pt.l = ggarrange(banner, pt.grid.l, nrow = 2, heights = c(0.08, 1))
    )
  
  
- png("./figures/Supplemental figures/Figure S16 Bootstrapped PT and kNC.png", res = 600, height = 170, width = 250, units = "mm") 
+ png("./figures/Supplemental figures/Figure S17 Bootstrapped PT and kNC.png", res = 600, height = 170, width = 250, units = "mm") 
  
  
  ggarrange(tues.pt.t, paul.pt.l, t.knc.boot, l.knc.boot, nrow = 2, ncol = 2)

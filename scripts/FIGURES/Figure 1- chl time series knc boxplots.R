@@ -250,7 +250,8 @@ both.plotted = ggplot(morning.pigs.both,
 
 data = read.csv("./data/formatted data/simulation model inputs 2013-2015 2024 2025 v4.csv") %>% 
   mutate(kNC = kPAR - 0.0177*Manual_Chl) %>% 
-  filter(Lake %in% (c("L", "T")))
+  filter(Lake %in% (c("L", "T"))) %>% 
+  filter(!is.na(Ztherm)) # get rid of interpolated values
 
 
 data <- data %>%

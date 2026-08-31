@@ -100,7 +100,7 @@ ptimes = ggarrange(lb.plot, rb.plot, align = "h")
 rb.plot = ggplot(pt.all %>% filter(basin == "right"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
   geom_point()+
-  labs(y = "", x = "Year", title = "high-pigment") +
+  labs(y = "", x = "Year", title = "high-chlorophyll") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = green_palette)+
   theme_classic()+
@@ -120,7 +120,7 @@ rb.plot = ggplot(pt.all %>% filter(basin == "right"), aes(x = as.factor(year), y
 lb.plot = ggplot(pt.all %>% filter(basin == "left"), aes(x = as.factor(year), y = (hours)/24, fill = factor(year))) +
   geom_boxplot(alpha = 0.8)+
   geom_point()+
-  labs(y = "passage time (days)", x = "Year", title = "low-pigment") +
+  labs(y = "passage time (days)", x = "Year", title = "low-chlorophyll") +
   theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16))+
   scale_fill_manual(values = rev(brown_palette))+
   theme_classic()+
@@ -149,7 +149,7 @@ pt.left.density =  ggplot(
   labs(
     x = "passage time (days)",
     y = "Year",
-    title = "low-pigment"
+    title = "low-chlorophyll"
   ) +
   theme_classic() +
   theme(
@@ -170,7 +170,7 @@ pt.right.density = ggplot(
   labs(
     x = "passage time (days)",
     y = "Year",
-    title = "high-pigment"
+    title = "high-chlorophyll"
   ) +
   theme_classic() +
   theme(
@@ -254,6 +254,7 @@ data %>%
 data.mean = data %>% 
   mutate(kNC = kPAR - 0.0177*Manual_Chl) %>% 
   filter(Lake == "T" & kNC > 0) %>% 
+  filter(!is.na(Ztherm)) %>% 
   group_by(Year) %>% 
   summarize(mean.kNC = mean(kNC, na.rm = TRUE),
             median.kNC = median(kNC, na.rm = TRUE),
@@ -295,8 +296,8 @@ compare.to.zoop = ggplot(pt.mean, aes(x = zoop.mean, y = (mean.days), color = ba
                   box.padding = 0.6, point.padding = 0.5,
                   force = 2, min.segment.length = 0, segment.color = NA) +
   facet_wrap(~basin,
-             labeller = as_labeller(c(left = "low-pigment",
-                                      right = "high-pigment"))) +
+             labeller = as_labeller(c(left = "low-chlorophyll",
+                                      right = "high-chlorophyll"))) +
   scale_color_manual(values = c(left = "#755A42",
                                 right = "#5a6b3a")) +
   labs(x = "mean zooplankton biomass (g m-2)",
@@ -370,8 +371,8 @@ compare.to.knc = ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), fill = basin
                   box.padding = 0.2, point.padding = 1.5,
                   force = 2, min.segment.length = 0, segment.color = NA) +
   facet_wrap(~basin, scales = "free_x",
-             labeller = as_labeller(c(left = "low-pigment",
-                                      right = "high-pigment"))) +
+             labeller = as_labeller(c(left = "low-chlorophyll",
+                                      right = "high-chlorophyll"))) +
   scale_fill_manual(values = c(left = "#755A42",
                                right = "#5a6b3a")) +
   
@@ -446,8 +447,8 @@ compare.to.kPAR = ggplot(pt.mean, aes(x = mean.kPAR, y = (mean.days), fill = bas
                   box.padding = 0.2, point.padding = 1.5,
                   force = 2, min.segment.length = 0, segment.color = NA) +
   facet_wrap(~basin, scales = "free_x",
-             labeller = as_labeller(c(left = "low-pigment",
-                                      right = "high-pigment"))) +
+             labeller = as_labeller(c(left = "low-chlorophyll",
+                                      right = "high-chlorophyll"))) +
   scale_fill_manual(values = c(left = "#755A42",
                                right = "#5a6b3a")) +
   
@@ -492,8 +493,8 @@ ggplot(pt.mean, aes(x = mean.kNC, y = (mean.days), color = basin)) +
                   box.padding = 0.6, point.padding = 0.5,
                   force = 2, min.segment.length = 0, segment.color = NA) +
   facet_wrap(~basin,
-             labeller = as_labeller(c(left = "low-pigment",
-                                      right = "high-pigment"))) +
+             labeller = as_labeller(c(left = "low-chlorophyll",
+                                      right = "high-chlorophyll"))) +
   scale_color_manual(values = c(left = "#755A42",
                                 right = "#5a6b3a")) +
   labs(x = "mean non-chl light attenuation (kNC)",
@@ -535,8 +536,8 @@ pandpt =  ggplot(pt.mean, aes(x = max.P, y = (mean.days), color = basin)) +
                   box.padding = 0.6, point.padding = 0.5,
                   force = 2, min.segment.length = 0, segment.color = NA) +
   facet_wrap(~basin,
-             labeller = as_labeller(c(left = "low-pigment",
-                                      right = "high-pigment"))) +
+             labeller = as_labeller(c(left = "low-chlorophyll",
+                                      right = "high-chlorophyll"))) +
   scale_color_manual(values = c(left = "#755A42",
                                 right = "#5a6b3a")) +
   labs(x = "cumulative P added (mg m-2 d-1)",
@@ -644,19 +645,19 @@ global.ep.plot <- ggplot(
     "text",
     x = (-7 + eq) / 2,
     y = ymax * 1.07,
-    label = "low-pigment",
+    label = "low-chlorophyll",
     color = "white",
     fontface = "bold",
-    size = 4
+    size = 3.5
   ) +
   annotate(
     "text",
     x = (eq + 8) / 2,
     y = ymax * 1.07,
-    label = "high-pigment",
+    label = "high-chlorophyll",
     color = "white",
     fontface = "bold",
-    size = 4
+    size = 3.5
   )
 
 
@@ -871,8 +872,8 @@ high = xeq2[3]
 
 
 dat0  = dat0 %>% 
-  mutate(basin = case_when(stdlevel > thresh~"high-pigment",
-                           stdlevel < thresh~"low-pigment")) %>% 
+  mutate(basin = case_when(stdlevel > thresh~"high-chlorophyll",
+                           stdlevel < thresh~"low-chlorophyll")) %>% 
   mutate(equilibria = case_when(stdlevel > thresh~high,
                                 stdlevel < thresh~low))
 
@@ -881,8 +882,8 @@ dat0  = dat0 %>%
 
 dat0 = dat0 %>%
   arrange(year, doy) %>%
-  mutate(basin = case_when(stdlevel > thresh ~ "high-pigment",
-                           stdlevel < thresh ~ "low-pigment")) %>%
+  mutate(basin = case_when(stdlevel > thresh ~ "high-chlorophyll",
+                           stdlevel < thresh ~ "low-chlorophyll")) %>%
   # create a group that breaks line at color changes
   group_by(year) %>%
   mutate(group = cumsum(basin != lag(basin, default = first(basin)))) %>%
@@ -892,7 +893,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
   geom_line(size = 1, alpha = 0.75) +
   geom_line(aes(x = doy, y = equilibria), size = 2, color = "black") +
   geom_hline(yintercept = thresh, linetype = "dashed") +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "DOY", y = "stdlevel")+
@@ -923,7 +924,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
     linetype = "solid",
     size = 1
   ) +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "DOY", y = "Chlorophyll (standard level)") +
@@ -1007,7 +1008,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
     linetype = "solid",
     size = 1
   ) +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "DOY", y = "stdlevel") +
@@ -1032,7 +1033,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel)) +
   #   linetype = "solid",
   #   size = 1
   # ) +
-  # scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  # scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
 facet_wrap(~year) +
   theme_classic() +
   labs(x = "Date", y = "Chlorophyll (standard level)") +
@@ -1065,7 +1066,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel)) +
   #   linetype = "solid",
   #   size = 1
   # ) +
-  #  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  #  scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
 facet_wrap(~year) +
   theme_classic() +
   labs(x = "Date", y = "Chlorophyll (standard level)") +
@@ -1098,7 +1099,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel)) +
   #   linetype = "solid",
   #   size = 1
   # ) +
-  #scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  #scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "Date", y = "Chlorophyll (standard level)") +
@@ -1129,7 +1130,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, color = basin, group = group)) +
   #   linetype = "solid",
   #   size = 1
   # ) +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "Date", y = "Chlorophyll (standard level)") +
@@ -1163,7 +1164,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, color = basin, group = group)) +
   #   linetype = "solid",
   #   size = 1
   # ) +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "Date", y = "Chlorophyll (standard level)") +
@@ -1196,7 +1197,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, color = basin, group = group)) +
     linetype = "solid",
     size = 1
   ) +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "Date", y = "Chlorophyll (standard level)") +
@@ -1223,7 +1224,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
     linetype = "solid",
     size = 1
   ) +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "Date", y = "Chlorophyll (standard level)") +
@@ -1254,7 +1255,7 @@ ggplot(dat0, aes(x = doy, y = stdlevel, group = group, color = basin)) +
     linetype = "solid",
     size = 1
   ) +
-  scale_color_manual(values = c("high-pigment" = "#5a6b3a", "low-pigment" = "#533113")) +
+  scale_color_manual(values = c("high-chlorophyll" = "#5a6b3a", "low-chlorophyll" = "#533113")) +
   facet_wrap(~year) +
   theme_classic() +
   labs(x = "Date", y = "Chlorophyll (standard level)") +
